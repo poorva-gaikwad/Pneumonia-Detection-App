@@ -1,0 +1,564 @@
+{% extends "base.html" %} {% block title %}Diagnostic History | PneumoScan Pro{%
+endblock %} {% block content %}
+<style>
+  :root {
+    /* Elevated Clinical Palette */
+    --primary: #4f46e5;
+    --primary-light: #818cf8;
+    --primary-dark: #3730a3;
+    --secondary: #0ea5e9;
+    --accent: #f59e0b;
+    --success: #10b981;
+    --danger: #ef4444;
+    --navy: #0f172a;
+    --slate-50: #f8fafc;
+    --slate-100: #f1f5f9;
+    --slate-200: #e2e8f0;
+    --slate-400: #94a3b8;
+    --slate-600: #475569;
+    --white: #ffffff;
+
+    /* Effects */
+    --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.04);
+    --shadow-md: 0 10px 25px -5px rgba(15, 23, 42, 0.08);
+    --shadow-xl: 0 25px 50px -12px rgba(15, 23, 42, 0.12);
+    --radius-xl: 32px;
+    --radius-lg: 20px;
+    --transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+  }
+
+  body {
+    background-color: var(--slate-50);
+    color: var(--navy);
+    font-family: "Plus Jakarta Sans", system-ui, sans-serif;
+  }
+
+  .history-wrapper {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: clamp(20px, 5vw, 40px) 20px;
+  }
+
+  /* Sophisticated Sticky Header */
+  .sticky-header {
+    position: sticky;
+    top: 0;
+    background: rgba(248, 250, 252, 0.8);
+    backdrop-filter: blur(12px);
+    z-index: 100;
+    padding: 20px 0;
+    margin-bottom: 30px;
+    border-bottom: 1px solid rgba(226, 232, 240, 0.5);
+  }
+
+  .header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+  }
+
+  .page-dim h1 {
+    font-size: clamp(1.5rem, 4vw, 2.2rem);
+    font-weight: 900;
+    letter-spacing: -0.04em;
+    margin: 0;
+    color: var(--navy);
+  }
+
+  .search-container {
+    position: relative;
+    width: 100%;
+    max-width: 400px;
+  }
+
+  .search-container input {
+    width: 100%;
+    padding: 14px 20px 14px 50px;
+    border-radius: 18px;
+    border: 1px solid var(--slate-200);
+    background: var(--white);
+    font-size: 0.95rem;
+    font-weight: 600;
+    transition: var(--transition);
+    box-shadow: var(--shadow-sm);
+  }
+
+  .search-container input:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1);
+    transform: translateY(-2px);
+  }
+
+  .search-icon {
+    position: absolute;
+    left: 18px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 1.2rem;
+    pointer-events: none;
+  }
+
+  /* Master List */
+  .history-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+
+  /* History Card Design */
+  .history-record {
+    background: var(--white);
+    border-radius: var(--radius-xl);
+    padding: 30px;
+    border: 1px solid var(--slate-100);
+    box-shadow: var(--shadow-sm);
+    transition: var(--transition);
+    opacity: 0;
+    transform: translateY(20px);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .history-record.reveal {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .history-record:hover {
+    box-shadow: var(--shadow-md);
+    border-color: var(--primary-light);
+    transform: translateY(-4px);
+  }
+
+  .card-identity {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 25px;
+  }
+
+  .patient-name h3 {
+    margin: 0;
+    font-size: 1.35rem;
+    font-weight: 900;
+    color: var(--navy);
+  }
+
+  .patient-meta {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--slate-400);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-top: 4px;
+  }
+
+  /* Diagnostic Modules */
+  .diagnostic-cluster {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 24px;
+    margin-bottom: 30px;
+  }
+
+  .module-item {
+    padding: 20px;
+    background: var(--slate-50);
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--slate-100);
+    transition: 0.3s;
+  }
+
+  .module-item:hover {
+    background: white;
+    border-color: var(--slate-200);
+  }
+
+  .module-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 800;
+    font-size: 0.9rem;
+    margin-bottom: 12px;
+    color: var(--slate-800);
+  }
+
+  .confidence-stat {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+  }
+
+  .stat-val {
+    font-weight: 900;
+    color: var(--primary);
+    font-size: 1.1rem;
+  }
+  .stat-txt {
+    font-weight: 700;
+    color: var(--slate-400);
+    font-size: 0.75rem;
+    text-transform: uppercase;
+  }
+
+  .progress-bg {
+    height: 8px;
+    background: var(--slate-200);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(to right, var(--primary), var(--primary-light));
+    border-radius: 10px;
+    width: 0%;
+    transition: width 1s cubic-bezier(0.1, 1, 0.1, 1);
+  }
+
+  /* Submetrics */
+  .submetric-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 15px;
+    padding-top: 15px;
+    border-top: 1px dashed var(--slate-200);
+  }
+
+  .chip-box {
+    padding: 6px 12px;
+    background: white;
+    border-radius: 8px;
+    font-size: 0.75rem;
+    font-weight: 800;
+    color: var(--slate-600);
+    border: 1px solid var(--slate-100);
+  }
+
+  .media-link {
+    font-size: 0.75rem;
+    font-weight: 800;
+    color: var(--primary);
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    margin-top: 10px;
+  }
+
+  /* Record Footer */
+  .record-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 25px;
+    border-top: 1px solid var(--slate-100);
+  }
+
+  .vitals-summary {
+    display: flex;
+    gap: 15px;
+    font-weight: 800;
+    font-size: 0.8rem;
+    color: var(--slate-400);
+  }
+
+  .action-stack {
+    display: flex;
+    gap: 8px;
+  }
+
+  .btn-circle {
+    width: 48px;
+    height: 48px;
+    border-radius: 16px;
+    background: var(--slate-50);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--navy);
+    text-decoration: none;
+    font-size: 1.2rem;
+    transition: var(--transition);
+    border: none;
+    cursor: pointer;
+  }
+
+  .btn-circle:hover {
+    background: var(--primary);
+    color: white;
+    transform: translateY(-3px) rotate(8deg);
+  }
+
+  .btn-delete:hover {
+    background: var(--danger);
+    color: white;
+  }
+
+  /* Empty State Modern */
+  .empty-state {
+    text-align: center;
+    padding: 80px 40px;
+    background: var(--white);
+    border-radius: var(--radius-xl);
+    border: 2px dashed var(--slate-200);
+    margin-top: 40px;
+  }
+
+  .empty-icon {
+    font-size: 4rem;
+    margin-bottom: 20px;
+    filter: grayscale(1);
+    opacity: 0.3;
+  }
+  .empty-cta {
+    display: inline-flex;
+    padding: 14px 28px;
+    background: var(--primary);
+    color: white;
+    border-radius: 14px;
+    text-decoration: none;
+    font-weight: 800;
+    margin-top: 20px;
+    transition: 0.3s;
+  }
+  .empty-cta:hover {
+    transform: scale(1.05);
+    box-shadow: 0 10px 20px rgba(79, 70, 229, 0.2);
+  }
+
+  @media (max-width: 768px) {
+    .header-content {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+    .search-container {
+      max-width: 100%;
+    }
+    .record-footer {
+      flex-direction: column;
+      gap: 20px;
+      align-items: flex-start;
+    }
+    .action-stack {
+      width: 100%;
+      justify-content: space-between;
+    }
+    .history-record {
+      padding: 20px;
+    }
+  }
+</style>
+
+<div class="history-wrapper">
+  <!-- Interactive Header -->
+  <header class="sticky-header">
+    <div class="header-content">
+      <div class="page-dim">
+        <h1>Clinical History</h1>
+      </div>
+      <div class="search-container">
+        <span class="search-icon">🔍</span>
+        <input
+          type="search"
+          id="historySearch"
+          placeholder="Filter by name, ID or pathology..." />
+      </div>
+    </div>
+  </header>
+
+  {% if rows %}
+  <div class="history-grid">
+    {% for r in rows %}
+    <article class="history-record">
+      <div class="card-identity">
+        <div class="patient-name">
+          <h3>{{ r.patient_name or 'Anonymous Patient' }}</h3>
+          <div class="patient-meta">
+            ID: {{ r.id or '---' }} <span style="margin: 0 8px">•</span>
+            {{ r.timestamp.strftime('%B %d, %Y') if r.timestamp else '---' }}
+          </div>
+        </div>
+      </div>
+
+      <div class="diagnostic-cluster">
+        <!-- Pneumonia Core Module -->
+        <div class="module-item">
+          <div class="module-label"><span>🫁</span> Pneumonia</div>
+          <div class="confidence-stat">
+            <span class="stat-txt">Probability</span>
+            <span class="stat-val">{{ r.confidence or '0' }}%</span>
+          </div>
+          <div class="progress-bg">
+            <div
+              class="progress-fill"
+              style="width: 0%"
+              data-pct="{{ r.confidence or 0 }}"></div>
+          </div>
+        </div>
+
+        <!-- Asthma Multi-Record Logic -->
+        {% if r.asthma_records %} {% for a in r.asthma_records %}
+        <div class="module-item">
+          <div class="module-label"><span>🌬️</span> Asthma Control</div>
+          <div class="confidence-stat">
+            <span class="stat-txt">{{ a.prediction_label or 'Analysis' }}</span>
+            <span class="stat-val">{{ a.confidence or '0' }}%</span>
+          </div>
+          <div class="progress-bg">
+            <div
+              class="progress-fill"
+              style="width: 0%"
+              data-pct="{{ a.confidence or 0 }}"></div>
+          </div>
+          <div class="submetric-row">
+            <div class="chip-box">PEF: {{ a.pef or '--' }} L/min</div>
+            <div class="chip-box">FeNO: {{ a.feno or '--' }} ppb</div>
+            <div class="chip-box">ER: {{ a.er_visits or '0' }}</div>
+          </div>
+        </div>
+        {% endfor %} {% endif %}
+
+        <!-- TB Multi-Record Logic -->
+        {% if r.tb_records %} {% for t in r.tb_records %}
+        <div class="module-item">
+          <div class="module-label"><span>🦠</span> Tuberculosis</div>
+          <div class="confidence-stat">
+            <span class="stat-txt"
+              >{{ t.prediction_label or 'Diagnosis' }}</span
+            >
+            <span class="stat-val">{{ t.confidence or '0' }}%</span>
+          </div>
+          <div class="progress-bg">
+            <div
+              class="progress-fill"
+              style="width: 0%"
+              data-pct="{{ t.confidence or 0 }}"></div>
+          </div>
+          {% if t.image_filename %}
+          <a
+            href="/uploads/{{ t.image_filename }}"
+            target="_blank"
+            class="media-link">
+            <span>🖼️</span> Examine Radiograph
+          </a>
+          {% endif %}
+        </div>
+        {% endfor %} {% endif %}
+      </div>
+
+      <!-- Action & Metadata Footer -->
+      <footer class="record-footer">
+        <div class="vitals-summary">
+          <span>{{ r.age or '?' }} Years</span>
+          <span>•</span>
+          <span>{{ r.gender or 'Unspecified' }}</span>
+          <span>•</span>
+          <span>{{ r.body_temperature or '--' }}°C</span>
+        </div>
+        <div class="action-stack">
+          <a
+            href="{{ url_for('view_report', scan_id=r.id) }}"
+            class="btn-circle"
+            title="View Detailed Report"
+            >📄</a
+          >
+
+          {% if r.image_filename %}
+          <a
+            href="/uploads/{{ r.image_filename }}"
+            target="_blank"
+            class="btn-circle"
+            title="View Full Texture Radiograph"
+            >🩻</a
+          >
+          {% endif %}
+
+          <form
+            action="{{ url_for('delete_history', history_id=r.id) }}"
+            method="POST"
+            onsubmit="return confirm('Securely purge this clinical record?');">
+            <button
+              type="submit"
+              class="btn-circle btn-delete"
+              title="Archive Delete">
+              🗑️
+            </button>
+          </form>
+        </div>
+      </footer>
+    </article>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="empty-state">
+    <div class="empty-icon">📂</div>
+    <h2 style="font-weight: 800; color: var(--navy)">
+      Clinical Repository Empty
+    </h2>
+    <p style="color: var(--slate-400); font-weight: 600">
+      No diagnostic histories have been recorded for this session.
+    </p>
+    <a href="{{ url_for('scan_predict') }}" class="empty-cta"
+      >Initiate New Diagnosis</a
+    >
+  </div>
+  {% endif %}
+</div>
+
+<script>
+  // Modern Filter Logic
+  const searchInput = document.getElementById("historySearch");
+  if (searchInput) {
+    searchInput.addEventListener("input", (e) => {
+      const term = e.target.value.toLowerCase();
+      document.querySelectorAll(".history-record").forEach((record) => {
+        const content = record.innerText.toLowerCase();
+        if (content.includes(term)) {
+          record.style.display = "block";
+          record.style.opacity = "1";
+        } else {
+          record.style.display = "none";
+        }
+      });
+    });
+  }
+
+  // Animation & Progress Observer
+  const observer = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          // Entance Animation
+          entry.target.classList.add("reveal");
+
+          // Staggered Progress Fill
+          const bars = entry.target.querySelectorAll(".progress-fill");
+          bars.forEach((bar) => {
+            const val = bar.getAttribute("data-pct");
+            setTimeout(() => {
+              bar.style.width = val + "%";
+            }, 300);
+          });
+        }
+      });
+    },
+    { threshold: 0.15 },
+  );
+
+  document
+    .querySelectorAll(".history-record")
+    .forEach((record) => observer.observe(record));
+
+  // PWA Offline Support Notification (Mock)
+  window.addEventListener("offline", () => {
+    console.log("Entering Clinical Offline Mode");
+  });
+</script>
+
+{% endblock %}

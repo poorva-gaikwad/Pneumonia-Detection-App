@@ -1,0 +1,532 @@
+{% extends "base.html" %} {% block title %}Institutional Analytics | PneumoScan
+Pro AI{% endblock %} {% block content %}
+<style>
+  :root {
+    --primary: #1976d2;
+    --navy: #0a2540;
+    --slate-50: #f8fafc;
+    --slate-100: #f1f5f9;
+    --slate-200: #e2e8f0;
+    --slate-400: #94a3b8;
+    --slate-600: #475569;
+    --white: #ffffff;
+    --shadow-soft:
+      0 20px 25px -5px rgba(0, 0, 0, 0.05), 0 10px 10px -5px rgba(0, 0, 0, 0.02);
+    --radius-xl: 40px;
+    --glass: rgba(255, 255, 255, 0.8);
+  }
+
+  body {
+    background-color: var(--slate-50);
+    background-image: radial-gradient(
+      at 100% 0%,
+      var(--slate-100) 0%,
+      transparent 40%
+    );
+    color: var(--navy);
+    font-family:
+      "Inter",
+      -apple-system,
+      system-ui,
+      sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .container {
+    max-width: 1440px;
+    margin: 0 auto;
+    padding: 12px 16px 120px;
+  }
+
+  /* Reveal Animations */
+  .reveal {
+    opacity: 1;
+    transform: translateY(20px);
+    transition: all 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .reveal.active {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* Header Section */
+  .page-header {
+    margin-bottom: 32px;
+    padding: 24px 0;
+    text-align: left;
+  }
+  .tagline {
+    color: var(--primary);
+    font-weight: 800;
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    display: block;
+    margin-bottom: 8px;
+  }
+  .page-header h1 {
+    font-size: clamp(1.8rem, 5vw, 2.8rem);
+    font-weight: 900;
+    letter-spacing: -0.04em;
+    margin: 0;
+    line-height: 1.1;
+  }
+
+  /* Metrics Grid */
+  .metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+    margin-bottom: 32px;
+  }
+  .stat-card {
+    background: var(--white);
+    padding: 24px;
+    border-radius: 24px;
+    border: 1px solid var(--slate-200);
+    box-shadow: var(--shadow-soft);
+    transition: 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  .stat-card:hover {
+    transform: translateY(-4px);
+    border-color: var(--primary);
+  }
+  .stat-label {
+    font-size: 0.65rem;
+    font-weight: 800;
+    color: var(--slate-400);
+    text-transform: uppercase;
+    display: block;
+    margin-bottom: 6px;
+  }
+  .stat-value {
+    font-size: clamp(1.5rem, 4vw, 2rem);
+    font-weight: 900;
+    color: var(--navy);
+  }
+
+  /* Charts Hub */
+  .charts-layout {
+    display: grid;
+    grid-template-columns: repeat(12, 1fr);
+    gap: 20px;
+    margin-bottom: 32px;
+  }
+  .chart-box {
+    grid-column: span 6;
+    background: var(--white);
+    padding: 24px;
+    border-radius: var(--radius-xl);
+    border: 1px solid var(--slate-200);
+    box-shadow: var(--shadow-soft);
+    display: flex;
+    flex-direction: column;
+    min-height: 380px;
+  }
+  .chart-box.full-width {
+    grid-column: span 12;
+    min-height: 450px;
+  }
+  .chart-box h3 {
+    font-size: 1rem;
+    font-weight: 800;
+    margin-bottom: 20px;
+    color: var(--navy);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .chart-container {
+    position: relative;
+    flex-grow: 1;
+    min-height: 280px;
+    width: 100%;
+  }
+
+  /* Activity Table */
+  .activity-card {
+    background: var(--white);
+    padding: 24px;
+    border-radius: var(--radius-xl);
+    border: 1px solid var(--slate-200);
+    box-shadow: var(--shadow-soft);
+  }
+  .activity-card h3 {
+    font-size: 1.2rem;
+    font-weight: 800;
+    margin-bottom: 20px;
+  }
+  .table-wrapper {
+    width: 100%;
+    overflow-x: auto;
+    border-radius: 16px;
+    -webkit-overflow-scrolling: touch;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 600px;
+  }
+  th {
+    text-align: left;
+    padding: 16px;
+    background: var(--slate-50);
+    font-size: 0.65rem;
+    font-weight: 800;
+    color: var(--slate-600);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    border-bottom: 1px solid var(--slate-100);
+  }
+  td {
+    padding: 16px;
+    border-bottom: 1px solid var(--slate-50);
+    font-size: 0.85rem;
+  }
+
+  /* PWA Indicator */
+  .pwa-indicator {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--navy);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    color: white;
+    padding: 10px 20px;
+    border-radius: 100px;
+    font-size: 0.7rem;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    z-index: 2000;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    white-space: nowrap;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  @media (max-width: 1024px) {
+    .chart-box {
+      grid-column: span 12;
+    }
+  }
+  @media (max-width: 640px) {
+    .container {
+      padding: 8px 12px 100px;
+    }
+    .metrics-grid {
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+    }
+    .stat-card {
+      padding: 16px;
+      border-radius: 20px;
+    }
+    .chart-box {
+      padding: 20px;
+      border-radius: 30px;
+      min-height: 320px;
+    }
+    .page-header {
+      text-align: center;
+    }
+  }
+  @media (max-width: 400px) {
+    .metrics-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
+
+<div class="container">
+  <div class="pwa-indicator">
+    <span id="sync-dot" style="color: #10b981">●</span>
+    <span id="sync-text">ANALYTICS ENGINE ONLINE</span>
+  </div>
+
+  <header class="page-header reveal">
+    <span class="tagline">Data Intelligence Center</span>
+    <h1>Institutional Analytics</h1>
+  </header>
+  <div class="metrics-grid">
+    <div class="stat-card reveal">
+      <span class="stat-label">Global Scans</span>
+      <div class="stat-value">{{ total_scans }}</div>
+    </div>
+    <div class="stat-card reveal" style="transition-delay: 0.05s">
+      <span class="stat-label">Your Contribution</span>
+      <div class="stat-value">{{ user_total }}</div>
+    </div>
+    <div class="stat-card reveal" style="transition-delay: 0.1s">
+      <span class="stat-label">Mean Confidence</span>
+      <div class="stat-value">{{ user_conf_avg }}%</div>
+    </div>
+    <div class="stat-card reveal" style="transition-delay: 0.15s">
+      <span class="stat-label">Top Diagnostic</span>
+      <div class="stat-value" style="font-size: 1.2rem; line-height: 1.2">
+        {{ user_top_prediction }}
+      </div>
+    </div>
+    <div class="stat-card reveal" style="transition-delay: 0.2s">
+      <span class="stat-label">Asthma Cases</span>
+      <div class="stat-value">{{ asthma_total }}</div>
+    </div>
+    <div class="stat-card reveal" style="transition-delay: 0.25s">
+      <span class="stat-label">TB Cases</span>
+      <div class="stat-value">{{ tb_total }}</div>
+    </div>
+  </div>
+
+  <div class="charts-layout">
+    <div class="chart-box reveal">
+      <h3>📊 Prediction Distribution</h3>
+      <div class="chart-container">
+        <canvas id="predictionChart"></canvas>
+      </div>
+    </div>
+    <div class="chart-box reveal">
+      <h3>🌬️ Asthma Distribution</h3>
+      <div class="chart-container">
+        <canvas id="asthmaChart"></canvas>
+      </div>
+    </div>
+
+    <div class="chart-box reveal" style="transition-delay: 0.1s">
+      <h3>🦠 TB Distribution</h3>
+      <div class="chart-container">
+        <canvas id="tbChart"></canvas>
+      </div>
+    </div>
+
+    <div class="chart-box reveal" style="transition-delay: 0.1s">
+      <h3>🧬 Symptom Frequency</h3>
+      <div class="chart-container">
+        <canvas id="symptomChart"></canvas>
+      </div>
+    </div>
+
+    <div class="chart-box reveal">
+      <h3>🛡️ Risk Prevalence</h3>
+      <div class="chart-container">
+        <canvas id="riskChart"></canvas>
+      </div>
+    </div>
+
+    <div class="chart-box reveal" style="transition-delay: 0.1s">
+      <h3>👥 Age Distribution</h3>
+      <div class="chart-container">
+        {% if age_values | sum > 0 %}
+        <canvas id="ageChart"></canvas>
+        {% else %}
+        <div
+          style="
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--slate-400);
+            font-weight: 700;
+            font-size: 0.8rem;
+          ">
+          No age data detected.
+        </div>
+        {% endif %}
+      </div>
+    </div>
+
+    <div class="chart-box full-width reveal">
+      <h3>📈 System Confidence Velocity (Last 10 Records)</h3>
+      <div class="chart-container">
+        {% if confidence_scores %}
+        <canvas id="confidenceChart"></canvas>
+        {% else %}
+        <p style="color: var(--navy); font-size: 0.8rem">
+          No confidence data available for recent scans.
+        </p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <div class="activity-card reveal">
+    <h3>🕒 Inference History</h3>
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>DateTime Stamp</th>
+            <th>Patient Identity</th>
+            <th>AI Verdict</th>
+            <th>Confidence Matrix</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for r in recent_scans %}
+          <tr>
+            <td style="color: var(--slate-600); font-size: 0.75rem">
+              {{ r.timestamp }}
+            </td>
+            <td style="font-weight: 800">
+              {{ r.patient_name or 'Anonymous' }}
+            </td>
+            <td>
+              <span
+                style="
+                  background: var(--slate-100);
+                  padding: 4px 10px;
+                  border-radius: 50px;
+                  font-weight: 800;
+                  font-size: 0.65rem;
+                  text-transform: uppercase;
+                ">
+                {{ r.prediction_label or 'N/A' }}
+              </span>
+            </td>
+            <td style="font-weight: 900; color: var(--primary)">
+              {{ r.confidence }}%
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    Chart.defaults.font.family = "'Inter', sans-serif";
+    Chart.defaults.color = '#64748b';
+
+    const palette = ['#1976d2', '#0a2540', '#64b5f6', '#bbdefb', '#e2e8f0'];
+
+    new Chart(document.getElementById('predictionChart'), {
+      type: 'bar',
+      data: {
+        labels: {{ prediction_labels | tojson }},
+        datasets: [{
+          label: 'Scans',
+          data: {{ prediction_values | tojson }},
+          backgroundColor: '#1976d2',
+          borderRadius: 8
+        }]
+      },
+      options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+    });
+
+    new Chart(document.getElementById('symptomChart'), {
+      type: 'doughnut',
+      data: {
+        labels: {{ symptom_labels | tojson }},
+        datasets: [{
+          data: {{ symptom_values | tojson }},
+          backgroundColor: palette,
+          borderWidth: 0
+        }]
+      },
+      options: { responsive: true, maintainAspectRatio: false, cutout: '75%', plugins: { legend: { position: 'bottom' } } }
+    });
+
+    new Chart(document.getElementById('riskChart'), {
+      type: 'pie',
+      data: {
+        labels: {{ risk_labels | tojson }},
+        datasets: [{
+          data: {{ risk_values | tojson }},
+          backgroundColor: palette,
+          borderWidth: 0
+        }]
+      },
+      options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
+    });
+
+    {% if age_values | sum > 0 %}
+    new Chart(document.getElementById('ageChart'), {
+      type: 'doughnut',
+      data: {
+        labels: {{ age_labels | tojson }},
+        datasets: [{
+          data: {{ age_values | tojson }},
+          backgroundColor: palette,
+          borderWidth: 0
+        }]
+      },
+      options: { responsive: true, maintainAspectRatio: false, cutout: '75%', plugins: { legend: { position: 'bottom' } } }
+    });
+    {% endif %}
+
+  new Chart(document.getElementById('asthmaChart'), {
+    type: 'bar',
+    data: {
+      labels: {{ asthma_labels | tojson }},
+      datasets: [{
+        label: 'Asthma Cases',
+        data: {{ asthma_values | tojson }},
+        backgroundColor:palette,
+        borderRadius: 8
+      }]
+    },
+    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+  });
+
+  new Chart(document.getElementById('tbChart'), {
+    type: 'bar',
+    data: {
+      labels: {{ tb_labels | tojson }},
+      datasets: [{
+        label: 'TB Cases',
+        data: {{ tb_values | tojson }},
+        backgroundColor: palette,
+        borderRadius: 8
+      }]
+    },
+    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+  });
+
+    new Chart(document.getElementById('confidenceChart'), {
+      type: 'line',
+      data: {
+        labels: {{ confidence_timestamps | tojson }},
+        datasets: [{
+          label: 'AI Confidence %',
+          data: {{ confidence_scores | tojson }},
+          borderColor: '#1976d2',
+          backgroundColor: 'rgba(25, 118, 210, 0.05)',
+          fill: true,
+          tension: 0.4,
+          pointRadius: 4
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+          y: { min: 0, max: 100, grid: { color: '#f1f5f9' } },
+          x: { grid: { display: false } }
+        }
+      }
+    });
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => { if (entry.isIntersecting) entry.target.classList.add('active'); });
+    }, { threshold: 0.05 });
+    document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+    function monitorNet() {
+      const dot = document.getElementById('sync-dot');
+      const text = document.getElementById('sync-text');
+      if (navigator.onLine) {
+        dot.style.color = '#10b981';
+        text.innerText = 'ANALYTICS ENGINE ONLINE';
+      } else {
+        dot.style.color = '#ef4444';
+        text.innerText = 'OFFLINE: LOCAL CACHE';
+      }
+    }
+    window.addEventListener('online', monitorNet);
+    window.addEventListener('offline', monitorNet);
+    monitorNet();
+</script>
+{% endblock %}

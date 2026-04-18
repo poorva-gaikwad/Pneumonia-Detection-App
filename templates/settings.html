@@ -1,0 +1,309 @@
+{% extends "base.html" %}
+{% block title %}System Settings | PneumoScan Pro AI{% endblock %}
+
+{% block content %}
+<style>
+  :root {
+    --primary: #1976d2;
+    --navy: #0a2540;
+    --slate-50: #f8fafc;
+    --slate-100: #f1f5f9;
+    --slate-200: #e2e8f0;
+    --slate-400: #94a3b8;
+    --slate-600: #475569;
+    --white: #ffffff;
+    --shadow-soft: 0 20px 25px -5px rgba(0, 0, 0, 0.05), 0 10px 10px -5px rgba(0, 0, 0, 0.02);
+    --amber: #f59e0b;
+  }
+
+  body {
+    background: var(--slate-50);
+    background-image: radial-gradient(circle at top right, var(--slate-100), transparent);
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    color: var(--navy);
+  }
+
+  .container {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 20px 24px 100px;
+  }
+
+  /* Reveal System */
+  .reveal {
+    opacity: 1;
+    transform: translateY(20px);
+    transition: all 0.7s cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+  .reveal.active {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* Header */
+  .settings-header {
+    text-align: center;
+    margin-bottom: 50px;
+    padding-top: 40px;
+  }
+
+  .tagline {
+    color: var(--primary);
+    font-weight: 800;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    display: block;
+    margin-bottom: 10px;
+  }
+
+  .settings-header h1 {
+    font-size: 2.8rem;
+    font-weight: 900;
+    letter-spacing: -0.04em;
+    margin: 0;
+  }
+
+  /* Configuration Card */
+  .settings-card {
+    background: var(--white);
+    border-radius: 40px;
+    padding: 60px;
+    box-shadow: var(--shadow-soft);
+    border: 1px solid var(--slate-200);
+  }
+
+  .config-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 40px;
+    margin-bottom: 40px;
+  }
+
+  .config-group {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .group-title {
+    font-size: 1.1rem;
+    font-weight: 800;
+    color: var(--navy);
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border-bottom: 1px solid var(--slate-100);
+    padding-bottom: 15px;
+  }
+
+  /* Inputs */
+  label {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--slate-600);
+  }
+
+  input, select {
+    width: 100%;
+    padding: 16px;
+    border-radius: 14px;
+    border: 1.5px solid var(--slate-200);
+    background: var(--slate-50);
+    font-size: 1rem;
+    transition: 0.3s;
+    box-sizing: border-box;
+    font-family: inherit;
+  }
+
+  input:focus, select:focus {
+    outline: none;
+    border-color: var(--primary);
+    background: var(--white);
+    box-shadow: 0 0 0 4px rgba(25, 118, 210, 0.1);
+  }
+
+  /* Buttons & Disclaimer */
+  .btn-save {
+    width: 100%;
+    background: var(--navy);
+    color: white;
+    padding: 20px;
+    border-radius: 18px;
+    border: none;
+    font-weight: 800;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: 0.3s;
+    margin-top: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .btn-save:hover {
+    background: var(--primary);
+    transform: translateY(-2px);
+    box-shadow: 0 10px 20px rgba(25, 118, 210, 0.2);
+  }
+
+  .disclaimer {
+    background: #fffbeb;
+    border: 1px solid #fef3c7;
+    border-radius: 20px;
+    padding: 24px;
+    margin-top: 40px;
+    display: flex;
+    gap: 15px;
+    align-items: flex-start;
+  }
+
+  .disclaimer-icon { font-size: 1.2rem; }
+  .disclaimer-text { font-size: 0.9rem; color: #92400e; font-weight: 500; line-height: 1.5; }
+
+  /* PWA Status */
+  .pwa-indicator {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    background: var(--white);
+    padding: 12px 20px;
+    border-radius: 100px;
+    box-shadow: var(--shadow-soft);
+    border: 1px solid var(--slate-200);
+    font-size: 0.7rem;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    z-index: 1000;
+  }
+
+  @media (max-width: 800px) {
+    .config-grid { grid-template-columns: 1fr; }
+    .settings-card { padding: 40px 20px; border-radius: 30px; }
+    .settings-header h1 { font-size: 2.2rem; }
+  }
+</style>
+
+<div class="container">
+  <!-- PWA Indicator -->
+  <div class="pwa-indicator">
+    <span id="sync-dot" style="color: #10b981;">●</span>
+    <span id="sync-text">CONFIG NODE ONLINE</span>
+  </div>
+
+  <header class="settings-header reveal">
+    <span class="tagline">System Administration</span>
+    <h1>Global Parameters</h1>
+  </header>
+
+  <form method="POST" action="{{ url_for('settings') }}" class="reveal">
+    <div class="settings-card">
+      
+ {# 
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    {% for cat, msg in messages %}
+      <div style="background: #ecfdf5; color: #065f46; padding: 16px; border-radius: 14px; margin-bottom: 30px; text-align: center; font-size: 0.9rem; font-weight: 700; border: 1px solid #a7f3d0;">
+        ✓ {{ msg }}
+      </div>
+    {% endfor %}
+  {% endif %}
+{% endwith %}
+#}
+
+
+      <div class="config-grid">
+        <!-- General Section -->
+        <div class="config-group">
+          <div class="group-title"><span>⚙️</span> General Access</div>
+          
+          <div class="form-item">
+            <label>Inference Timeout (Seconds)</label>
+            <input type="number" name="scan_timeout" value="{{ settings.scan_timeout or 30 }}" required>
+          </div>
+
+          <div class="form-item">
+            <label>Default Onboarding Role</label>
+            <select name="default_role">
+              <option value="patient" {% if settings.default_role == 'patient' %}selected{% endif %}>Patient (User)</option>
+              <option value="doctor" {% if settings.default_role == 'doctor' %}selected{% endif %}>Medical Professional</option>
+            </select>
+          </div>
+
+          <div class="form-item">
+            <label>Push Notification Hook</label>
+            <select name="notifications">
+              <option value="yes" {% if settings.notifications == 'yes' %}selected{% endif %}>Enabled</option>
+              <option value="no" {% if settings.notifications == 'no' %}selected{% endif %}>Disabled</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Advanced Section -->
+        <div class="config-group">
+          <div class="group-title"><span>🛡️</span> Security & Data</div>
+          
+          <div class="form-item">
+            <label>Maximum DICOM/JPG Size (MB)</label>
+            <input type="number" name="max_upload_size" value="{{ settings.max_upload_size or 32 }}" required>
+          </div>
+
+          <div class="form-item">
+            <label>Primary Administrator Email</label>
+            <input type="email" name="admin_email" value="{{ settings.admin_email or '' }}" placeholder="admin@pneumoscan.pro">
+          </div>
+
+          <div class="form-item">
+            <label>Maintenance Override</label>
+            <select name="maintenance_mode">
+              <option value="off" {% if settings.maintenance_mode == 'off' %}selected{% endif %}>Production (Live)</option>
+              <option value="on" {% if settings.maintenance_mode == 'on' %}selected{% endif %}>Maintenance (Restricted)</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <button type="submit" class="btn-save">
+        <span>💾</span> Commit System Changes
+      </button>
+
+      <div class="disclaimer">
+        <div class="disclaimer-icon">⚠️</div>
+        <div class="disclaimer-text">
+          <strong>Protocol Warning:</strong> Updating global parameters affects all institutional nodes. Changes to "Maintenance Mode" will terminate active diagnostic sessions.
+        </div>
+      </div>
+    </div>
+  </form>
+</div>
+
+<script>
+  // Shared Animation System
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) entry.target.classList.add('active');
+    });
+  }, { threshold: 0.1 });
+  document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+  // Connectivity Monitoring
+  function updateConnectivity() {
+    const dot = document.getElementById('sync-dot');
+    const text = document.getElementById('sync-text');
+    if (navigator.onLine) {
+      dot.style.color = '#10b981';
+      text.innerText = 'CONFIG NODE ONLINE';
+    } else {
+      dot.style.color = '#f87171';
+      text.innerText = 'OFFLINE: CHANGES QUEUED';
+    }
+  }
+  window.addEventListener('online', updateConnectivity);
+  window.addEventListener('offline', updateConnectivity);
+  updateConnectivity();
+</script>
+{% endblock %}

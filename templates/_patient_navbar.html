@@ -1,0 +1,15 @@
+<!-- Horizontal Navbar -->
+<nav class="navbar">
+  <div class="logo">⚕️ PneumoScan</div>
+  <span class="nav-toggle" onclick="toggleNav()">☰</span>
+  <div class="nav-links" id="navLinks">
+    <a href="{{ url_for('patient_dashboard') }}">Patient Dashboard</a>
+    <a href="{{ url_for('patient_history') }}">Patient History</a>
+    <a href="{{ url_for('scan_predict') }}">Scan Predict</a>
+    <a href="{{ url_for('history') }}">History</a>
+    <a href="{{ url_for('prevention') }}">Prevention</a>
+    <a href="{{ url_for('assistant') }}">AI Assistant</a>
+    <a href="{{ url_for('about') }}">About</a>
+    <a href="{{ url_for('logout') }}">Logout</a>
+  </div>
+</nav>

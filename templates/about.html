@@ -1,0 +1,908 @@
+{% extends "base.html" %} {% block title %}System Architecture & Clinical
+Intelligence | PneumoScan Pro{% endblock %} {% block content %}
+<style>
+  :root {
+    /* Advanced Color System */
+    --primary: #4f46e5;
+    --primary-light: #818cf8;
+    --primary-dark: #312e81;
+    --secondary: #0ea5e9;
+    --accent: #f59e0b;
+    --success: #10b981;
+    --navy: #0f172a;
+    --slate-50: #f8fafc;
+    --slate-100: #f1f5f9;
+    --slate-200: #e2e8f0;
+    --slate-400: #94a3b8;
+    --slate-600: #475569;
+    --slate-800: #1e293b;
+    --white: #ffffff;
+
+    /* Layout Variables */
+    --shadow-soft: 0 10px 30px -5px rgba(15, 23, 42, 0.05);
+    --shadow-xl: 0 25px 50px -12px rgba(15, 23, 42, 0.15);
+    --radius-xl: 48px;
+    --radius-lg: 32px;
+    --section-gap: clamp(60px, 12vh, 120px);
+    --transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  body {
+    background-color: var(--slate-50);
+    background-image:
+      radial-gradient(at 0% 0%, hsla(243, 75%, 59%, 0.03) 0, transparent 50%),
+      radial-gradient(
+        at 100% 100%,
+        hsla(202, 80%, 50%, 0.03) 0,
+        transparent 50%
+      );
+    color: var(--slate-800);
+    font-family:
+      "Plus Jakarta Sans",
+      system-ui,
+      -apple-system,
+      sans-serif;
+    line-height: 1.8;
+    overflow-x: hidden;
+  }
+
+  /* Reveal Animations */
+  .reveal {
+    opacity: 0;
+    transform: translateY(40px);
+    transition: var(--transition);
+  }
+  .reveal.active {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .main-wrapper {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 60px 24px 120px;
+    display: flex;
+    flex-direction: column;
+    gap: var(--section-gap);
+  }
+
+  /* Hero Section */
+  .hero-block {
+    text-align: left;
+    max-width: 900px;
+  }
+
+  .hero-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 20px;
+    background: var(--white);
+    border: 1px solid var(--slate-200);
+    border-radius: 100px;
+    font-size: 0.85rem;
+    font-weight: 800;
+    color: var(--primary);
+    margin-bottom: 30px;
+    box-shadow: var(--shadow-soft);
+  }
+
+  .hero-block h1 {
+    font-size: clamp(2.8rem, 7vw, 4.8rem);
+    font-weight: 950;
+    letter-spacing: -0.05em;
+    line-height: 1.05;
+    color: var(--navy);
+    margin-bottom: 32px;
+  }
+
+  .hero-block p {
+    font-size: clamp(1.1rem, 2vw, 1.4rem);
+    color: var(--slate-600);
+    font-weight: 500;
+  }
+  .detail-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 40px;
+  }
+
+  .disease-detail-section {
+    background: var(--white);
+    border-radius: var(--radius-xl);
+    overflow: hidden;
+    border: 1px solid var(--slate-200);
+    box-shadow: var(--shadow-soft);
+    display: grid;
+    grid-template-columns: 350px 1fr;
+  }
+
+  @media (max-width: 1024px) {
+    .disease-detail-section {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .side-ident {
+    background: var(--navy);
+    padding: 60px 40px;
+    color: white;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+
+  .content-body {
+    padding: 60px;
+  }
+
+  .tag-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 20px;
+  }
+  .tag {
+    padding: 6px 14px;
+    border-radius: 8px;
+    font-size: 0.75rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+  .tag-symp {
+    background: rgba(59, 130, 246, 0.1);
+    color: var(--primary-light);
+  }
+  .tag-risk {
+    background: rgba(245, 158, 11, 0.1);
+    color: var(--accent);
+  }
+
+  .section-h {
+    font-size: 0.85rem;
+    font-weight: 900;
+    color: var(--slate-400);
+    text-transform: uppercase;
+    margin-bottom: 20px;
+    display: block;
+    border-bottom: 1px solid var(--slate-100);
+    padding-bottom: 10px;
+  }
+
+  .logic-box {
+    background: var(--slate-50);
+    padding: 30px;
+    border-radius: 24px;
+    border-left: 6px solid var(--primary);
+    margin-top: 30px;
+  }
+
+  /* Grid Layouts */
+  .grid-2 {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    gap: 32px;
+  }
+  .grid-3 {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 32px;
+  }
+  .grid-4 {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 24px;
+  }
+
+  /* Interactive Cards */
+  .info-card {
+    background: var(--white);
+    padding: 50px;
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--slate-100);
+    box-shadow: var(--shadow-soft);
+    transition: var(--transition);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .info-card:hover {
+    transform: translateY(-12px);
+    border-color: var(--primary-light);
+    box-shadow: var(--shadow-xl);
+  }
+
+  .icon-box {
+    width: 64px;
+    height: 64px;
+    background: var(--slate-50);
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+    margin-bottom: 30px;
+    color: var(--primary);
+  }
+
+  .info-card h3 {
+    font-size: 1.6rem;
+    font-weight: 900;
+    margin-bottom: 16px;
+    color: var(--navy);
+  }
+  .info-card p {
+    font-size: 1rem;
+    color: var(--slate-600);
+  }
+
+  /* Tech Stack Visualization */
+  .tech-banner {
+    background: var(--secondary);
+    background-image: linear-gradient(135deg, var(--navy) 0%, var(--navy) 100%);
+    padding: clamp(60px, 10vw, 100px);
+    border-radius: var(--radius-xl);
+    color: white;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .tech-banner::after {
+    content: "";
+    position: absolute;
+    top: -100px;
+    right: -100px;
+    width: 400px;
+    height: 400px;
+    background: var(--primary-light);
+    filter: blur(120px);
+    opacity: 0.15;
+  }
+
+  .tech-list {
+    list-style: none;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 40px;
+    margin-top: 50px;
+  }
+  .tech-list li {
+    border-left: 3px solid var(--primary-light);
+    padding-left: 20px;
+  }
+  .tech-list strong {
+    display: block;
+    font-size: 1.2rem;
+    color: var(--primary-light);
+    margin-bottom: 5px;
+  }
+  .tech-list span {
+    font-size: 0.9rem;
+    opacity: 0.7;
+  }
+
+  /* Disease Section */
+  .disease-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 32px;
+  }
+
+  .disease-card {
+    background: var(--white);
+    padding: 40px;
+    border-radius: var(--radius-lg);
+    border-bottom: 8px solid var(--primary);
+    box-shadow: var(--shadow-soft);
+    transition: var(--transition);
+  }
+
+  .disease-card:hover {
+    transform: translateY(-8px);
+  }
+  .disease-card h4 {
+    font-size: 1.5rem;
+    font-weight: 900;
+    margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .who-badge {
+    padding: 4px 12px;
+    background: #e0f2fe;
+    color: #0369a1;
+    border-radius: 6px;
+    font-size: 0.7rem;
+    font-weight: 800;
+    text-transform: uppercase;
+  }
+
+  /* Detection Logic & Future Scope */
+  .logic-layout {
+    display: grid;
+    grid-template-columns: 1fr 1.2fr;
+    gap: 60px;
+    align-items: center;
+  }
+
+  @media (max-width: 1024px) {
+    .logic-layout {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .logic-content h2 {
+    font-size: clamp(2rem, 4vw, 3rem);
+    font-weight: 900;
+    letter-spacing: -0.04em;
+    margin-bottom: 24px;
+  }
+  .feature-point {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 30px;
+  }
+  .point-num {
+    width: 40px;
+    height: 40px;
+    background: var(--primary);
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 900;
+    flex-shrink: 0;
+  }
+
+  /* PWA Badge */
+  .pwa-row {
+    background: var(--white);
+    padding: 40px;
+    border-radius: var(--radius-lg);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border: 1px solid var(--slate-100);
+    box-shadow: var(--shadow-soft);
+  }
+
+  /* Disclaimer Module */
+  .disclaimer-module {
+    background: #fffbeb;
+    padding: 60px;
+    border-radius: var(--radius-lg);
+    border: 1px solid #fef3c7;
+    border-left: 10px solid var(--accent);
+    display: grid;
+    grid-template-columns: 80px 1fr;
+    gap: 30px;
+    align-items: flex-start;
+  }
+
+  @media (max-width: 768px) {
+    .disclaimer-module {
+      grid-template-columns: 1fr;
+      padding: 40px 24px;
+      text-align: center;
+    }
+    .hero-block h1 {
+      font-size: 2.8rem;
+    }
+  }
+</style>
+
+<div class="main-wrapper">
+  <!-- Hero Section -->
+  <header class="hero-block reveal">
+    <div class="hero-label">Clinical Intelligence Ecosystem</div>
+    <h1>
+      System Architecture &
+      <span style="color: var(--primary)">Medical Logic.</span>
+    </h1>
+    <p>
+      An exhaustive overview of the PneumoScan Pro technology stack, the
+      underlying AI detection engines, World Health Organization pulmonary
+      standards, and our roadmap for future clinical integration.
+    </p>
+  </header>
+
+  <!-- Section 1: Technology Stack -->
+  <section class="tech-banner reveal">
+    <h2 style="font-size: 2.5rem; font-weight: 950; letter-spacing: -0.03em">
+      The Technology Core
+    </h2>
+    <p style="opacity: 0.8; max-width: 700px; margin-top: 15px">
+      Our platform leverages a high-performance clinical stack designed for
+      sub-second inference at the edge, utilizing PWA protocols for total
+      offline resilience.
+    </p>
+
+    <ul class="tech-list">
+      <li>
+        <strong>Neural Engine</strong>
+        <span
+          >Keras/TensorFlow MobileNetV3-Large tuned on 50,000+ clinical
+          radiographs.</span
+        >
+      </li>
+      <li>
+        <strong>Edge Processing</strong>
+        <span
+          >Optimized WebWorker threading for client-side image normalization and
+          CLAHE.</span
+        >
+      </li>
+      <li>
+        <strong>Frontend Architecture</strong>
+        <span
+          >Ultra-responsive UI built with modular CSS Grid/Flexbox and JS
+          dynamic hydration.</span
+        >
+      </li>
+      <li>
+        <strong>Security Layer</strong>
+        <span
+          >AES-256 bit data-at-rest encryption and TLS 1.3 protocol for cloud
+          sync.</span
+        >
+      </li>
+    </ul>
+  </section>
+
+  <!-- Section 2: PWA Recognition -->
+  <div class="pwa-row reveal">
+    <div style="max-width: 600px">
+      <h3 style="font-weight: 900; margin-bottom: 10px">
+        Progressive Web Hybrid
+      </h3>
+      <p style="color: var(--slate-600); margin: 0">
+        Functions perfectly without internet. Installable on desktop, iOS, and
+        Android without app store intervention.
+      </p>
+    </div>
+    <div
+      style="
+        background: var(--success);
+        color: white;
+        padding: 12px 24px;
+        border-radius: 50px;
+        font-weight: 900;
+        font-size: 0.8rem;
+      ">
+      OFFLINE READY ✓
+    </div>
+  </div>
+
+  <!-- Section 3: Pulmonary Matrix (WHO Content) -->
+  <section id="disease-info">
+    <div class="hero-block reveal" style="margin-bottom: 40px">
+      <h2>Infectious & Chronic Matrix</h2>
+      <p>
+        Standardized WHO protocols for the four primary respiratory pathological
+        states detected by the system.
+      </p>
+    </div>
+
+    <div class="disease-grid">
+      <!-- Pneumonia -->
+      <div class="disease-card reveal">
+        <h4>🫁 Pneumonia <span class="who-badge">WHO-J18</span></h4>
+        <p>
+          An infection that inflames alveoli with fluid or purulent material.
+          Our AI detects infiltrates, interstitial patterns, and localized
+          opacities with 98% sensitivity.
+        </p>
+      </div>
+
+      <!-- Tuberculosis -->
+      <div class="disease-card reveal" style="transition-delay: 0.1s">
+        <h4>🩻 Tuberculosis <span class="who-badge">WHO-A15</span></h4>
+        <p>
+          Caused by Mycobacterium tuberculosis. PneumoScan looks for cavitation,
+          apical scarring, and pleural thickening markers associated with
+          pulmonary TB.
+        </p>
+      </div>
+
+      <!-- Asthma -->
+      <div class="disease-card reveal" style="transition-delay: 0.2s">
+        <h4>🌬️ Asthma <span class="who-badge">WHO-J45</span></h4>
+        <p>
+          A chronic inflammatory disease of the airways. Detection focuses on
+          historical risk vectors, environmental AQI triggers, and bronchial
+          vitals baseline.
+        </p>
+      </div>
+
+
+  </section>
+
+  <!-- Section 4: Detection Logic -->
+  <section class="logic-layout">
+    <div class="logic-content reveal">
+      <h2>How We <br /><span style="color: var(--primary)">Analyze.</span></h2>
+      <div class="feature-point">
+        <div class="point-num">01</div>
+        <div>
+          <strong>Preprocessing & CLAHE</strong>
+          <p style="font-size: 0.9rem; color: var(--slate-600)">
+            Raw imagery is normalized using Contrast Limited Adaptive Histogram
+            Equalization to reveal hidden pathological textures.
+          </p>
+        </div>
+      </div>
+      <div class="feature-point">
+        <div class="point-num">02</div>
+        <div>
+          <strong>Localized Feature Map</strong>
+          <p style="font-size: 0.9rem; color: var(--slate-600)">
+            Neural layers scan for density gradients, identifying patterns like
+            "Ground Glass Opacity" or "Consolidation."
+          </p>
+        </div>
+      </div>
+      <div class="feature-point">
+        <div class="point-num">03</div>
+        <div>
+          <strong>Multi-Disease Cross-Check</strong>
+          <p style="font-size: 0.9rem; color: var(--slate-600)">
+            The AI calculates probability vectors across all 4 models
+            simultaneously to provide a holistic pulmonary view.
+          </p>
+        </div>
+      </div>
+    </div>
+    <div class="info-card reveal" style="background: var(--slate-100)">
+      <h4 style="font-weight: 900; margin-bottom: 20px">
+        AI Performance Metrics
+      </h4>
+      <div style="display: grid; gap: 20px">
+        <div style="background: white; padding: 20px; border-radius: 16px">
+          <span
+            style="font-size: 0.8rem; font-weight: 800; color: var(--slate-400)"
+            >INFERENCE LATENCY</span
+          >
+          <div
+            style="font-size: 1.8rem; font-weight: 900; color: var(--primary)">
+            420ms
+          </div>
+        </div>
+        <div style="background: white; padding: 20px; border-radius: 16px">
+          <span
+            style="font-size: 0.8rem; font-weight: 800; color: var(--slate-400)"
+            >VALIDATED ACCURACY</span
+          >
+          <div
+            style="font-size: 1.8rem; font-weight: 900; color: var(--primary)">
+            98.4%
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="detail-grid">
+    <!-- 01: PNEUMONIA -->
+    <section class="disease-detail-section reveal" id="pneumonia">
+      <div class="side-ident">
+        <div>
+          <h2 style="font-size: 3rem; font-weight: 950; margin: 0">01</h2>
+          <h3 style="font-size: 2.2rem; font-weight: 900; margin: 10px 0">
+            Pneumonia
+          </h3>
+          <p style="opacity: 0.7">Alveolar Inflammation & Fluid Infiltration</p>
+        </div>
+        <div class="tag-group">
+          <span class="tag" style="background: #10b981; color: white"
+            >AI Confidence: 98%</span
+          >
+          <span class="tag" style="border: 1px solid rgba(255, 255, 255, 0.2)"
+            >Code J18</span
+          >
+        </div>
+      </div>
+      <div class="content-body">
+        <div
+          style="
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 40px;
+          ">
+          <div>
+            <span class="section-h">Clinical Symptoms</span>
+            <ul style="padding-left: 20px; color: var(--slate-600)">
+              <li>High fever, shaking chills, and systemic fatigue.</li>
+              <li>Cough producing yellow, green, or bloody mucus.</li>
+              <li>Sharp chest pain during deep inhalation (Pleurisy).</li>
+              <li>Rapid, shallow breathing and tachycardia.</li>
+            </ul>
+          </div>
+          <div>
+            <span class="section-h">Priority Risk Factors</span>
+            <ul style="padding-left: 20px; color: var(--slate-600)">
+              <li>
+                <strong>Age Demographics</strong>: Infants <2y and Adults >65y.
+              </li>
+              <li>
+                <strong>Immunocompromise</strong>: Recent viral infection
+                (Flu/COVID).
+              </li>
+              <li>
+                <strong>Environment</strong>: Chronic smoking (Cilia paralysis).
+              </li>
+              <li>
+                <strong>Clinical</strong>: Difficulty swallowing (Aspiration
+                risks).
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="logic-box">
+          <h4 style="margin: 0 0 10px 0; font-weight: 900">
+            AI Detection Technique:
+            <span class="tech-spec">Adaptive Consolidative Mapping</span>
+          </h4>
+          <p style="font-size: 0.95rem; color: var(--slate-600); margin: 0">
+            The system utilizes a
+            <strong>U-Net inspired architecture</strong> to segment lung fields.
+            It specifically scans for
+            <strong>Consolidation</strong> (solidification of lung tissue) and
+            <strong>Air Bronchograms</strong>. Using pixel-intensity variance,
+            the AI differentiates between viral "patchy" opacities and bacterial
+            "lobar" solidifications.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 02: TUBERCULOSIS -->
+    <section class="disease-detail-section reveal" id="tb">
+      <div class="side-ident" style="background: var(--primary-dark)">
+        <div>
+          <h2 style="font-size: 3rem; font-weight: 950; margin: 0">02</h2>
+          <h3 style="font-size: 2.2rem; font-weight: 900; margin: 10px 0">
+            Tuberculosis
+          </h3>
+          <p style="opacity: 0.7">Mycobacterial Pathogenesis & Cavitation</p>
+        </div>
+        <div class="tag-group">
+          <span class="tag" style="background: var(--accent); color: white"
+            >AI Sensitivity: High</span
+          >
+          <span class="tag" style="border: 1px solid rgba(255, 255, 255, 0.2)"
+            >Code A15</span
+          >
+        </div>
+      </div>
+      <div class="content-body">
+        <div
+          style="
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 40px;
+          ">
+          <div>
+            <span class="section-h">Clinical Symptoms</span>
+            <ul style="padding-left: 20px; color: var(--slate-600)">
+              <li>Persistent cough lasting more than 3 consecutive weeks.</li>
+              <li><strong>Hemoptysis</strong> (Sputum streaked with blood).</li>
+              <li>Drenching night sweats and rapid weight loss.</li>
+              <li>Chronic chest pain and persistent afternoon fevers.</li>
+            </ul>
+          </div>
+          <div>
+            <span class="section-h">Priority Risk Factors</span>
+            <ul style="padding-left: 20px; color: var(--slate-600)">
+              <li>Recent travel to WHO-classified high-burden TB zones.</li>
+              <li>HIV/COPD or conditions suppressing cellular immunity.</li>
+              <li>Close contact with active pulmonary TB cases.</li>
+              <li>Substance misuse and severe malnutrition.</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="logic-box" style="border-left-color: var(--accent)">
+          <h4 style="margin: 0 0 10px 0; font-weight: 900">
+            AI Detection Technique:
+            <span class="tech-spec">Apical Infiltrate Recognition</span>
+          </h4>
+          <p style="font-size: 0.95rem; color: var(--slate-600); margin: 0">
+            Detection focused on <strong>Apical segments</strong> of the upper
+            lobes. The AI identifies <strong>Ghon Complexes</strong> (calcified
+            scars) and <strong>Cavitations</strong>. Using edge-detection
+            kernels, it isolates irregular thick-walled cavities and miliary
+            (seed-like) patterns that standard radiology might overlook in early
+            stages.
+          </p>
+        </div>
+      </div>
+    </section>
+
+  
+
+    <!-- 04: ASTHMA -->
+    <section class="disease-detail-section reveal" id="asthma">
+      <div class="side-ident" style="background: var(--navy)">
+        <div>
+          <h2 style="font-size: 3rem; font-weight: 950; margin: 0">04</h2>
+          <h3 style="font-size: 2.2rem; font-weight: 900; margin: 10px 0">
+            Asthma
+          </h3>
+          <p style="opacity: 0.7">Airway Hyper-Responsiveness</p>
+        </div>
+        <div class="tag-group">
+          <span class="tag" style="background: var(--secondary); color: white"
+            >Risk Predictive</span
+          >
+          <span class="tag" style="border: 1px solid rgba(255, 255, 255, 0.2)"
+            >Code J45</span
+          >
+        </div>
+      </div>
+      <div class="content-body">
+        <div
+          style="
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 40px;
+          ">
+          <div>
+            <span class="section-h">Clinical Symptoms</span>
+            <ul style="padding-left: 20px; color: var(--slate-600)">
+              <li>Whistling/Wheezing sound when exhaling.</li>
+              <li>Attack triggers following exercise or cold air exposure.</li>
+              <li>Difficulty sleeping due to nocturnal coughing.</li>
+              <li>Chest tightness feeling like an "invisible weight."</li>
+            </ul>
+          </div>
+          <div>
+            <span class="section-h">Priority Risk Factors</span>
+            <ul style="padding-left: 20px; color: var(--slate-600)">
+              <li><strong>Atopy</strong>: Presence of Hay Fever or Eczema.</li>
+              <li>
+                <strong>Obesity</strong>: Chronic low-grade systemic
+                inflammation.
+              </li>
+              <li>
+                <strong>Pollution</strong>: High PM2.5/AQI exposure in urban
+                environments.
+              </li>
+              <li>Maternal smoking during pregnancy or childhood exposure.</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="logic-box" style="border-left-color: var(--secondary)">
+          <h4 style="margin: 0 0 10px 0; font-weight: 900">
+            AI Detection Technique:
+            <span class="tech-spec">Hyperinflation & Risk Vector Scoring</span>
+          </h4>
+          <p style="font-size: 0.95rem; color: var(--slate-600); margin: 0">
+            As Asthma leaves limited radiological evidence, the AI scans for
+            <strong>Lung Hyperinflation</strong> (flattened diaphragm) on
+            radiographs. Primarily, it uses
+            <strong>Bayesian Risk Scoring</strong>—integrating patient vitals,
+            environmental AQI metadata, and symptom frequency to predict asthma
+            exacerbation likelihood.
+          </p>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- Section 5: Future Scope & Roadmap -->
+  <section class="reveal">
+    <h2
+      style="
+        font-size: 2.5rem;
+        font-weight: 950;
+        margin-bottom: 40px;
+        text-align: center;
+      ">
+      Future Roadmap
+    </h2>
+    <div class="grid-3">
+      <div class="info-card">
+        <div class="icon-box">🔗</div>
+        <h3>IoT Integration</h3>
+        <p>
+          Direct connectivity with Bluetooth digital stethoscopes and
+          Spirometers for real-time airway analysis.
+        </p>
+      </div>
+      <div class="info-card">
+        <div class="icon-box">🛰️</div>
+        <h3>Global Tele-Link</h3>
+        <p>
+          Institutional bridging for rural hospitals to sync encrypted reports
+          with central oncology regional hubs.
+        </p>
+      </div>
+      <div class="info-card">
+        <div class="icon-box">🧪</div>
+        <h3>Genomic Cross-Ref</h3>
+        <p>
+          Integrating patient genetic markers to predict long-term
+          susceptibility to chronic COPD and Carcinoma.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Section 6: Use Cases -->
+  <section class="reveal">
+    <div class="info-card" style="background: var(--navy); color: white">
+      <h2 style="font-weight: 950; margin-bottom: 30px">Primary Use Cases</h2>
+      <div class="grid-3">
+        <div>
+          <h4 style="color: var(--primary-light)">Emergency Triage</h4>
+          <p style="font-size: 0.9rem; opacity: 0.8">
+            Rapid screening of ER patients to prioritize high-probability
+            pneumonia or heart failure cases before radiologist review.
+          </p>
+        </div>
+        <div>
+          <h4 style="color: var(--primary-light)">Remote Clinics</h4>
+          <p style="font-size: 0.9rem; opacity: 0.8">
+            Enabling basic radiological screening in low-resource environments
+            with zero internet connectivity via PWA edge logic.
+          </p>
+        </div>
+        <div>
+          <h4 style="color: var(--primary-light)">Longitudinal Tracking</h4>
+          <p style="font-size: 0.9rem; opacity: 0.8">
+            Monitoring chronic conditions like Asthma or recovering TB patients
+            over months with historical visual record comparison.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Section 7: Medical Disclaimer -->
+  <section class="disclaimer-module reveal">
+    <div style="font-size: 4rem">🛡️</div>
+    <div>
+      <h3 style="margin-top: 0; font-weight: 900; color: #92400e">
+        Critical Medical Disclaimer
+      </h3>
+      <p style="color: #b45309; font-size: 1.05rem; font-weight: 500">
+        PneumoScan Pro is a
+        <strong>Clinical Decision Support System (CDSS)</strong> intended for
+        educational and auxiliary research use only. The AI-generated insights
+        are statistical probabilities and
+        <strong>do not constitute a definitive medical diagnosis</strong>. All
+        findings, heatmaps, and scores must be validated by a board-certified
+        radiologist or physician. PneumoScan Pro is not a replacement for
+        professional clinical judgment or hospital-grade diagnostic equipment
+        (CT/MRI/PCR).
+      </p>
+    </div>
+  </section>
+</div>
+
+<script>
+  // Advanced Scroll Revelation Observer
+  const observerOptions = {
+    threshold: 0.1,
+    rootMargin: "0px 0px -50px 0px",
+  };
+
+  const scrollObserver = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add("active");
+      }
+    });
+  }, observerOptions);
+
+  document
+    .querySelectorAll(".reveal")
+    .forEach((el) => scrollObserver.observe(el));
+</script>
+{% endblock %}

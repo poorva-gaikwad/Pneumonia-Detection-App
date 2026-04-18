@@ -1,0 +1,59 @@
+﻿{
+  "name": "Pneumonia Detection & Analysis App",
+  "short_name": "PneumoScan",
+  "description": "AI-powered chest X-ray analysis for pneumonia detection with role-based dashboards.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#e3f2fd",
+  "theme_color": "#1976d2",
+  "id": "/?source=pwa",
+  "categories": ["medical", "health"],
+  "icons": [
+    {
+      "src": "/static/icons/app-icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/static/icons/app-icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    },
+    {
+      "src": "/static/icons/favicon.ico",
+      "sizes": "512x512",
+      "type": "image/x-icon",
+      "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Upload Scan",
+      "short_name": "Upload",
+      "description": "Quickly upload a chest X-ray for analysis",
+      "url": "/scan_predict",
+      "icons": [
+        {
+          "src": "/static/icons/icon-192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "View History",
+      "short_name": "History",
+      "description": "Open scan history and past reports",
+      "url": "/history",
+      "icons": [
+        {
+          "src": "/static/icons/icon-192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
+    }
+  ]
+}

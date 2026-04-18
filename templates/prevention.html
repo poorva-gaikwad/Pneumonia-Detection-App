@@ -1,0 +1,786 @@
+{% extends "base.html" %} {% block title %}Pulmonary Prevention Hub | PneumoScan
+Pro{% endblock %} {% block content %}
+<style>
+  :root {
+    /* Advanced Modern Palette */
+    --primary: #4f46e5;
+    --primary-light: #818cf8;
+    --primary-dark: #3730a3;
+    --accent: #06b6d4;
+    --success: #10b981;
+    --warning: #f59e0b;
+    --danger: #ef4444;
+    --navy: #0f172a;
+    --slate-50: #f8fafc;
+    --slate-100: #f1f5f9;
+    --slate-200: #e2e8f0;
+    --slate-400: #94a3b8;
+    --slate-600: #475569;
+    --white: #ffffff;
+
+    /* Layout Constants */
+    --shadow-soft: 0 10px 30px -5px rgba(15, 23, 42, 0.05);
+    --shadow-xl: 0 25px 50px -12px rgba(15, 23, 42, 0.15);
+    --radius-section: 48px;
+    --radius-card: 28px;
+    --transition: all 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+
+  body {
+    background-color: var(--slate-50);
+    color: var(--navy);
+    font-family:
+      "Plus Jakarta Sans",
+      system-ui,
+      -apple-system,
+      sans-serif;
+    line-height: 1.8;
+  }
+
+  /* Ultra Responsive Wrapper */
+  .hub-container {
+    max-width: 1440px;
+    margin: 0 auto;
+    padding: clamp(20px, 5vw, 60px) clamp(16px, 3vw, 40px);
+    display: grid;
+    grid-template-columns: 320px 1fr;
+    gap: 40px;
+  }
+
+  @media (max-width: 1100px) {
+    .hub-container {
+      grid-template-columns: 1fr;
+    }
+    .sidebar-nav {
+      display: none;
+    }
+  }
+
+  /* Smooth Entry Reveal */
+  .reveal {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: var(--transition);
+  }
+  .reveal.active {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* App-like Hero Section */
+  .hero-banner {
+    grid-column: span 2;
+    background: var(--navy);
+    background-image:
+      radial-gradient(at 0% 0%, hsla(243, 75%, 59%, 0.15) 0, transparent 50%),
+      linear-gradient(135deg, var(--navy) 0%, var(--primary-dark) 100%);
+    border-radius: var(--radius-section);
+    padding: clamp(40px, 8vw, 100px);
+    color: white;
+    position: relative;
+    overflow: hidden;
+    box-shadow: var(--shadow-xl);
+    margin-bottom: 20px;
+  }
+
+  @media (max-width: 1100px) {
+    .hero-banner {
+      grid-column: 1;
+    }
+  }
+
+  .hero-banner h1 {
+    font-size: clamp(2.5rem, 6vw, 4.5rem);
+    font-weight: 950;
+    letter-spacing: -0.05em;
+    line-height: 1;
+    margin-bottom: 24px;
+  }
+
+  .hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 24px;
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 100px;
+    font-size: 0.85rem;
+    font-weight: 800;
+    color: var(--primary-light);
+    margin-bottom: 30px;
+  }
+
+  .hero-badge .pulse-dot {
+    width: 8px;
+    height: 8px;
+    background: var(--success);
+    border-radius: 50%;
+    box-shadow: 0 0 12px var(--success);
+    animation: pwa-pulse 2s infinite;
+  }
+
+  @keyframes pwa-pulse {
+    0% {
+      opacity: 0.4;
+    }
+    50% {
+      opacity: 1;
+    }
+    100% {
+      opacity: 0.4;
+    }
+  }
+
+  /* Navigation Sidebar */
+  .sidebar-nav {
+    position: sticky;
+    top: 40px;
+    height: fit-content;
+  }
+
+  .nav-card {
+    background: var(--white);
+    border-radius: var(--radius-card);
+    padding: 30px;
+    border: 1px solid var(--slate-200);
+    box-shadow: var(--shadow-soft);
+  }
+
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 16px 20px;
+    color: var(--slate-600);
+    text-decoration: none;
+    font-weight: 700;
+    border-radius: 18px;
+    transition: 0.3s;
+    margin-bottom: 8px;
+  }
+
+  .nav-item:hover {
+    background: var(--slate-100);
+    color: var(--primary);
+  }
+  .nav-item.active {
+    background: var(--primary);
+    color: white;
+    box-shadow: 0 10px 20px -5px rgba(79, 70, 229, 0.4);
+  }
+
+  /* Extensive Content Sections */
+  .content-section {
+    background: var(--white);
+    border-radius: var(--radius-section);
+    padding: clamp(30px, 6vw, 70px);
+    margin-bottom: 40px;
+    border: 1px solid var(--slate-200);
+    box-shadow: var(--shadow-soft);
+  }
+
+  .section-title {
+    font-size: clamp(1.8rem, 4vw, 2.8rem);
+    font-weight: 950;
+    letter-spacing: -0.04em;
+    margin-bottom: 20px;
+    color: var(--navy);
+  }
+
+  /* Feature Grid for facts */
+  .info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 24px;
+    margin: 40px 0;
+  }
+
+  .info-tile {
+    padding: 35px;
+    border-radius: 24px;
+    background: var(--slate-50);
+    border: 1px solid var(--slate-100);
+    transition: var(--transition);
+  }
+
+  .info-tile:hover {
+    transform: translateY(-10px);
+    background: white;
+    border-color: var(--primary-light);
+    box-shadow: var(--shadow-soft);
+  }
+  .info-tile h4 {
+    margin-top: 0;
+    color: var(--primary);
+    font-weight: 900;
+    margin-bottom: 15px;
+    font-size: 1.25rem;
+  }
+
+  /* PWA Checklist Styling */
+  .check-card {
+    background: var(--slate-50);
+    padding: 24px 30px;
+    border-radius: 20px;
+    margin-bottom: 16px;
+    display: flex;
+    gap: 20px;
+    cursor: pointer;
+    transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    border: 1.5px solid transparent;
+    align-items: center;
+  }
+
+  .check-card:hover {
+    transform: scale(1.02);
+    background: white;
+    border-color: var(--primary-light);
+  }
+
+  .custom-checkbox {
+    width: 28px;
+    height: 28px;
+    border: 3px solid var(--slate-200);
+    border-radius: 10px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    transition: 0.3s;
+  }
+
+  .check-card.completed {
+    opacity: 0.6;
+  }
+  .check-card.completed .custom-checkbox {
+    background: var(--success);
+    border-color: var(--success);
+  }
+  .check-card.completed .custom-checkbox::after {
+    content: "✓";
+    color: white;
+    font-weight: 950;
+    font-size: 1.1rem;
+  }
+
+  /* Detailed Timeline */
+  .healing-timeline {
+    position: relative;
+    padding-left: 40px;
+    margin: 40px 0;
+    border-left: 4px solid var(--slate-100);
+  }
+
+  .timeline-event {
+    margin-bottom: 45px;
+    position: relative;
+  }
+  .timeline-event::before {
+    content: "";
+    position: absolute;
+    left: -50px;
+    top: 10px;
+    width: 16px;
+    height: 16px;
+    background: var(--white);
+    border: 4px solid var(--primary);
+    border-radius: 50%;
+  }
+
+  .event-time {
+    font-weight: 950;
+    color: var(--primary);
+    text-transform: uppercase;
+    font-size: 0.8rem;
+    letter-spacing: 0.1em;
+    display: block;
+    margin-bottom: 8px;
+  }
+
+  /* Emergency Warning Box */
+  .emergency-alert {
+    background: #fef2f2;
+    padding: 50px;
+    border-radius: var(--radius-card);
+    border: 1px solid #fee2e2;
+    margin-top: 20px;
+  }
+
+  .emergency-alert h3 {
+    color: var(--danger);
+    font-size: 2.2rem;
+    font-weight: 950;
+    margin-top: 0;
+  }
+
+  /* Progress Bar */
+  .pwa-progress {
+    margin-top: 30px;
+    padding-top: 25px;
+    border-top: 1px solid var(--slate-100);
+  }
+  .bar-bg {
+    height: 12px;
+    background: var(--slate-100);
+    border-radius: 10px;
+    overflow: hidden;
+    margin-top: 12px;
+  }
+  .bar-fill {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(to right, var(--primary-light), var(--success));
+    transition: 1s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  @media (max-width: 768px) {
+    .hub-container {
+      padding: 15px;
+    }
+    .hero-banner {
+      padding: 40px 24px;
+      border-radius: 30px;
+    }
+    .content-section {
+      padding: 35px 20px;
+      border-radius: 32px;
+    }
+    .hero-banner h1 {
+      font-size: 2.8rem;
+    }
+  }
+</style>
+
+<div class="hub-container">
+  <!-- Dynamic Hero Header -->
+  <header class="hero-banner reveal" id="top">
+    <div class="hero-badge">
+      <div class="pulse-dot"></div>
+      Clinical Grade Prevention Protocols (WHO 2024)
+    </div>
+    <h1>
+      Breathe and <br /><span style="color: var(--primary-light)"
+        >Restoration.</span
+      >
+    </h1>
+    <p
+      style="
+        max-width: 850px;
+        font-size: clamp(1.1rem, 2vw, 1.35rem);
+        opacity: 0.85;
+        margin-top: 25px;
+        font-weight: 500;
+      ">
+      A comprehensive multidisciplinary guide to pulmonary resilience.
+      Integrating World Health Organization standards for the prevention of
+      Tuberculosis, Pneumonia, Lung Cancer, and Chronic Bronchial conditions.
+    </p>
+  </header>
+
+  <!-- Navigation Sidebar (Hidden on Mobile) -->
+  <aside class="sidebar-nav reveal">
+    <div class="nav-card">
+      <nav>
+        <a href="#env" class="nav-item"><span>🏠</span> Environment Card</a>
+        <a href="#pne" class="nav-item"><span>🦠</span> Pneumonia Ops</a>
+        <a href="#tb" class="nav-item"><span>🩻</span> TB Adherence</a>
+        <a href="#ast" class="nav-item"><span>🫁</span> Asthma Shield</a>
+        <a href="#onc" class="nav-item"><span>🧬</span> Oncology Care</a>
+        <a href="#timeline" class="nav-item"><span>⏳</span> Healing Flow</a>
+      </nav>
+
+      <div class="pwa-progress">
+        <div
+          style="
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+          ">
+          <span
+            style="
+              font-weight: 900;
+              font-size: 0.8rem;
+              color: var(--slate-600);
+              text-transform: uppercase;
+            "
+            >Habit Score</span
+          >
+          <span
+            id="score-text"
+            style="font-weight: 900; color: var(--primary); font-size: 0.9rem"
+            >0%</span
+          >
+        </div>
+        <div class="bar-bg">
+          <div id="p-bar" class="bar-fill"></div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Extended Main Content -->
+  <main class="hub-main">
+    <!-- 01 General Environment -->
+    <section class="content-section reveal" id="env">
+      <h2 class="section-title">01 Habitat & Behavioral Hygiene</h2>
+      <p style="color: var(--slate-600); font-weight: 500">
+        WHO research indicates that 90% of the population breathes air
+        containing high pollutant levels—pulmonary health starts at home.
+      </p>
+
+      <div class="info-grid">
+        <div class="info-tile">
+          <h4>Vapor Optimization</h4>
+          <p>
+            Maintain precision indoor humidity between 35-50%. Extremes in
+            either direction disrupt the tracheobronchial clearance system.
+          </p>
+        </div>
+        <div class="info-tile">
+          <h4>Biological Barrier</h4>
+          <p>
+            The "Hand-to-Nares" route is the primary transmission path for 70%
+            of respiratory pathogens. Standardize 20s hygiene routines.
+          </p>
+        </div>
+      </div>
+
+      <div class="habit-tracker">
+        <div class="check-card" onclick="track(this)">
+          <div class="custom-checkbox"></div>
+          <div>
+            <strong
+              style="display: block; font-size: 1.1rem; margin-bottom: 5px"
+              >HEPA (MERV 13) Filtration</strong
+            >
+            <p style="margin: 0; font-size: 0.95rem; color: var(--slate-600)">
+              Clean air particles down to 0.3 microns daily.
+            </p>
+          </div>
+        </div>
+        <div class="check-card" onclick="track(this)">
+          <div class="custom-checkbox"></div>
+          <div>
+            <strong
+              style="display: block; font-size: 1.1rem; margin-bottom: 5px"
+              >Deep Hydration Intake</strong
+            >
+            <p style="margin: 0; font-size: 0.95rem; color: var(--slate-600)">
+              Maintain 2.5L daily to keep pulmonary surfactant thin.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 02 Pneumonia Comprehensive -->
+    <section class="content-section reveal" id="pne">
+      <h2 class="section-title">02 Pneumonia Strategy</h2>
+      <p style="color: var(--slate-600); font-weight: 500">
+        Moving beyond treatment to high-fidelity preventive logic against
+        bacterial and viral invasion.
+      </p>
+
+      <div class="info-grid">
+        <div class="info-tile" style="border-left: 6px solid var(--accent)">
+          <h4>Immunology Fact</h4>
+          <p>
+            PCV13 and PPSV23 vaccination series reduce invasive pneumococcal
+            disease risk by over 75% in at-risk demographics.
+          </p>
+        </div>
+        <div class="info-tile">
+          <h4>Oral-Lung Axis</h4>
+          <p>
+            Periodontal pathogens are frequently micro-aspirated. Clinical oral
+            hygiene reduces aspiration pneumonia risks by 34%.
+          </p>
+        </div>
+      </div>
+
+      <h4 style="font-weight: 900; margin-bottom: 20px">
+        Restorative Lung Exercises
+      </h4>
+      <div class="healing-timeline">
+        <div class="timeline-event">
+          <span class="event-time">Daily Protocol</span>
+          <strong>Incentive Spirometry</strong>
+          <p style="color: var(--slate-600)">
+            Practice deep, sustained inhalations (5-10 times/hour) to keep air
+            sacs open and prevent fluid pooling.
+          </p>
+        </div>
+        <div class="timeline-event" style="margin-bottom: 0">
+          <span class="event-time">Post-Scan Routine</span>
+          <strong>Pursed-Lip Stability</strong>
+          <p style="color: var(--slate-600)">
+            Inhale through the nose (2s) and exhale slowly through pursed lips
+            (4s). This keeps airway pressure high.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 03 TB Adherence -->
+    <section class="content-section reveal" id="tb">
+      <h2 class="section-title">03 TB Eradication Core</h2>
+      <p style="color: var(--slate-600); font-weight: 500">
+        Tuberculosis requires extreme adherence to DOTS (Directly Observed
+        Treatment Short-course).
+      </p>
+
+      <div class="info-grid">
+        <div class="info-tile" style="background: #eef2ff">
+          <h4>The 6-Month Rule</h4>
+          <p>
+            TB medication must never be skipped for 180 consecutive days.
+            Premature cessation leads to MDR-TB (Multi-Drug Resistant)
+            pathogens.
+          </p>
+        </div>
+        <div class="info-tile">
+          <h4>Dietary Restoration</h4>
+          <p>
+            Lung cavity repair requires high protein density (1.5g per kg of
+            body weight) and Vitamin D for macrophage activation.
+          </p>
+        </div>
+      </div>
+
+      <div class="check-card" onclick="track(this)">
+        <div class="custom-checkbox"></div>
+        <div>
+          <strong>Isolation Protocol Compliance</strong>
+          <p style="margin: 0; font-size: 0.95rem; color: var(--slate-600)">
+            Maintain well-ventilated single occupancy during the first 3 weeks
+            of treatment.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 04 Asthma Precision -->
+    <section class="content-section reveal" id="ast">
+      <h2 class="section-title">04 Asthma Control Matrix</h2>
+      <p style="color: var(--slate-600); font-weight: 500">
+        Shifting from "Rescue" medicine to "Controller" logic according to GINA
+        standards.
+      </p>
+
+      <div class="info-grid">
+        <div class="info-tile" style="border-top: 6px solid var(--warning)">
+          <h4>Pollution Triggers</h4>
+          <p>
+            PM2.5 levels above 35μg/m³ trigger immediate bronchial spasms. Use
+            real-time AQI monitoring apps daily.
+          </p>
+        </div>
+        <div class="info-tile" style="border-top: 6px solid var(--warning)">
+          <h4>NSAID Warning</h4>
+          <p>
+            Up to 20% of asthmatics have sensitivity to Aspirin/NSAIDS, which
+            can trigger life-threatening bronchospasms.
+          </p>
+        </div>
+      </div>
+
+      <div class="check-card" onclick="track(this)">
+        <div class="custom-checkbox"></div>
+        <div>
+          <strong>Peak Flow Tracking</strong>
+          <p style="margin: 0; font-size: 0.95rem; color: var(--slate-600)">
+            Log morning/evening lung capacity. A 20% drop predicts an attack 48h
+            early.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 05 Oncology Risk -->
+    <section class="content-section reveal" id="onc">
+      <h2 class="section-title">05 Oncology Mitigation</h2>
+      <p style="color: var(--slate-600); font-weight: 500">
+        Advanced preventative logic for early detection and cellular protection.
+      </p>
+
+      <div class="info-grid">
+        <div class="info-tile">
+          <h4>Radon Awareness</h4>
+          <p>
+            The #2 cause of lung cancer worldwide. Test home soil levels yearly.
+            Mitigation reduces risk by over 90%.
+          </p>
+        </div>
+        <div
+          class="info-tile"
+          style="background: #fffbef; border-color: #fde68a">
+          <h4 style="color: #b45309">Dietary Shield</h4>
+          <p style="color: #92400e">
+            Cruciferous intake (Broccoli, Sprouts) activates Nrf2 pathways,
+            which protect pulmonary cells from DNA oxidative damage.
+          </p>
+        </div>
+        <div class="info-tile">
+          <h4>Screening Alert</h4>
+          <p>
+            Individuals with a 20+ pack-year history should normalize annual
+            Low-Dose CT (LDCT) screenings regardless of symptoms.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Healing Reality Timeline -->
+    <section class="content-section reveal" id="timeline">
+      <h2 class="section-title">Timeline of Restoration</h2>
+      <p style="color: var(--slate-600); font-weight: 500">
+        The clinical sequence of pulmonary healing after adopting these
+        protocols.
+      </p>
+
+      <div class="healing-timeline">
+        <div class="timeline-event">
+          <span class="event-time">24 Hours</span>
+          <strong>Carbon Monoxide Clearance</strong>
+          <p>
+            Blood oxygen levels return to normal. Cellular respiration
+            throughout the body stabilizes.
+          </p>
+        </div>
+        <div class="timeline-event">
+          <span class="event-time">72 Hours</span>
+          <strong>Bronchial Relaxation</strong>
+          <p>
+            Pulmonary air tubes begin to dilate. Breathing depth increases by
+            roughly 10-15%.
+          </p>
+        </div>
+        <div class="timeline-event">
+          <span class="event-time">2-4 Weeks</span>
+          <strong>Ciliary Regrowth</strong>
+          <p>
+            Hair-like structures in the lungs regain function, rapidly clearing
+            accumulated mucus and reducing infection risk.
+          </p>
+        </div>
+        <div class="timeline-event" style="margin-bottom: 0">
+          <span class="event-time">12 Months</span>
+          <strong>Pneumonia Risk Drop</strong>
+          <p>
+            Risk of critical respiratory infections is cut in half compared to a
+            compromised baseline.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Emergency Command Box -->
+    <section class="emergency-alert reveal">
+      <h3>🚨 Emergency Markers</h3>
+      <p style="color: #7f1d1d; font-weight: 700; margin-bottom: 25px">
+        Contact clinical services immediately if the following metrics appear:
+      </p>
+
+      <div
+        style="
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+          gap: 15px;
+          font-weight: 800;
+          color: #991b1b;
+        ">
+        <div style="display: flex; align-items: center; gap: 8px">
+          • SpO2 below 92%
+        </div>
+        <div style="display: flex; align-items: center; gap: 8px">
+          • Cyanotic (Blue) Lips
+        </div>
+        <div style="display: flex; align-items: center; gap: 8px">
+          • Chest Tightness
+        </div>
+        <div style="display: flex; align-items: center; gap: 8px">
+          • Confusion/Lethargy
+        </div>
+        <div style="display: flex; align-items: center; gap: 8px">
+          • High-grade Fever
+        </div>
+        <div style="display: flex; align-items: center; gap: 8px">
+          • Hemoptysis (Blood)
+        </div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<script>
+  // Progressive Habit Tracker Engine
+  function track(element) {
+    element.classList.toggle("completed");
+    updateProgress();
+
+    // Smooth Haptic Vibe logic for mobile
+    if ("vibrate" in navigator) navigator.vibrate(20);
+  }
+
+  function updateProgress() {
+    const total = document.querySelectorAll(".check-card").length;
+    const completed = document.querySelectorAll(".check-card.completed").length;
+    const ratio = (completed / total) * 100;
+
+    const bar = document.getElementById("p-bar");
+    const text = document.getElementById("score-text");
+
+    bar.style.width = Math.round(ratio) + "%";
+    text.innerText = Math.round(ratio) + "%";
+
+    // Save to LocalStorage for Offline/PWA Persistence
+    const state = Array.from(document.querySelectorAll(".check-card")).map(
+      (c) => c.classList.contains("completed"),
+    );
+    localStorage.setItem("prevent_progress_v1", JSON.stringify(state));
+  }
+
+  // Visual Reveal Observer
+  const scrollObserver = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) entry.target.classList.add("active");
+      });
+    },
+    { threshold: 0.1 },
+  );
+
+  document
+    .querySelectorAll(".reveal")
+    .forEach((el) => scrollObserver.observe(el));
+
+  // Load Saved Progress on Initial Load
+  window.addEventListener("DOMContentLoaded", () => {
+    const saved = JSON.parse(localStorage.getItem("prevent_progress_v1"));
+    if (saved) {
+      document.querySelectorAll(".check-card").forEach((card, i) => {
+        if (saved[i]) card.classList.add("completed");
+      });
+      updateProgress();
+    }
+  });
+
+  // Sidebar Auto-Focus Scroll Highlighting
+  window.addEventListener("scroll", () => {
+    let currentId = "";
+    document.querySelectorAll("section").forEach((section) => {
+      const top = section.offsetTop;
+      if (pageYOffset >= top - 150) currentId = section.getAttribute("id");
+    });
+
+    document.querySelectorAll(".nav-item").forEach((link) => {
+      link.classList.remove("active");
+      if (link.getAttribute("href").includes(currentId))
+        link.classList.add("active");
+    });
+  });
+</script>
+{% endblock %}

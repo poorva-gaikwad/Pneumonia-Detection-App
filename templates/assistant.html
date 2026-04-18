@@ -1,0 +1,607 @@
+{% extends "base.html" %} {% block title %}Clinical AI Assistant | PneumoScan
+Pro{% endblock %} {% block content %}
+<style>
+  :root {
+    /* High-End Clinical Palette */
+    --primary: #4f46e5;
+    --primary-light: #818cf8;
+    --primary-dark: #312e81;
+    --navy: #0f172a;
+    --slate-50: #f8fafc;
+    --slate-100: #f1f5f9;
+    --slate-200: #e2e8f0;
+    --slate-800: #1e293b;
+    --white: #ffffff;
+    --glass: rgba(255, 255, 255, 0.7);
+    --shadow-soft: 0 10px 25px -5px rgba(0, 0, 0, 0.05);
+    --shadow-xl: 0 25px 50px -12px rgba(0, 0, 0, 0.1);
+    --radius-xl: 40px;
+    --radius-lg: 24px;
+    --transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  body {
+    background-color: var(--slate-50);
+    background-image:
+      radial-gradient(at 0% 0%, hsla(243, 75%, 59%, 0.05) 0, transparent 40%),
+      radial-gradient(
+        at 100% 100%,
+        hsla(202, 80%, 50%, 0.05) 0,
+        transparent 40%
+      );
+    font-family:
+      "Plus Jakarta Sans",
+      system-ui,
+      -apple-system,
+      sans-serif;
+    color: var(--navy);
+    line-height: 1.6;
+    overflow-x: hidden;
+  }
+
+  /* Split Layout Grid */
+  .dashboard-wrapper {
+    display: grid;
+    grid-template-columns: 350px 1fr;
+    gap: 30px;
+    max-width: 1500px;
+    margin: 0 auto;
+    padding: 40px 24px 100px;
+  }
+
+  /* Reveal Animations */
+  .reveal {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: var(--transition);
+  }
+  .reveal.active {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* Sidebar Navigation / Tools */
+  .sidebar-panel {
+    position: sticky;
+    top: 40px;
+    height: fit-content;
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+  }
+
+  .tool-card {
+    background: var(--white);
+    padding: 30px;
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--slate-200);
+    box-shadow: var(--shadow-soft);
+  }
+
+  .status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 16px;
+    background: var(--slate-100);
+    border-radius: 100px;
+    font-size: 0.8rem;
+    font-weight: 800;
+    color: var(--primary);
+    margin-bottom: 15px;
+  }
+
+  .status-badge .dot {
+    width: 8px;
+    height: 8px;
+    background: #10b981;
+    border-radius: 50%;
+    box-shadow: 0 0 10px #10b981;
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes pulse {
+    0% {
+      opacity: 0.5;
+    }
+    50% {
+      opacity: 1;
+    }
+    100% {
+      opacity: 0.5;
+    }
+  }
+
+  /* Main Command Center */
+  .main-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+  }
+
+  .hero-glass {
+    background: var(--navy);
+    background-image: linear-gradient(
+      135deg,
+      var(--navy) 0%,
+      var(--primary-dark) 100%
+    );
+    padding: 60px;
+    border-radius: var(--radius-xl);
+    color: white;
+    position: relative;
+    overflow: hidden;
+    box-shadow: var(--shadow-xl);
+  }
+
+  .hero-glass::after {
+    content: "";
+    position: absolute;
+    top: -50px;
+    right: -50px;
+    width: 300px;
+    height: 300px;
+    background: var(--primary-light);
+    filter: blur(100px);
+    opacity: 0.1;
+  }
+
+  .hero-glass h1 {
+    font-size: clamp(2rem, 5vw, 3.5rem);
+    font-weight: 900;
+    letter-spacing: -0.05em;
+    margin-bottom: 15px;
+    line-height: 1.1;
+  }
+
+  /* Interaction Stage */
+  .interaction-hub {
+    background: var(--white);
+    border-radius: var(--radius-xl);
+    padding: 50px;
+    border: 1px solid var(--slate-200);
+    box-shadow: var(--shadow-soft);
+    position: relative;
+  }
+
+  .input-bar {
+    display: flex;
+    gap: 15px;
+    background: var(--slate-50);
+    padding: 12px;
+    border-radius: 30px;
+    border: 2px solid var(--slate-200);
+    transition: var(--transition);
+  }
+
+  .input-bar:focus-within {
+    border-color: var(--primary);
+    background: white;
+    box-shadow: 0 0 0 5px rgba(79, 70, 229, 0.1);
+  }
+
+  .query-input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    padding: 15px 25px;
+    font-size: 1.1rem;
+    font-weight: 500;
+    color: var(--navy);
+    outline: none;
+  }
+
+  .action-btn {
+    background: var(--primary);
+    color: white;
+    border: none;
+    padding: 0 35px;
+    border-radius: 22px;
+    font-weight: 800;
+    cursor: pointer;
+    transition: var(--transition);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .action-btn:hover {
+    background: var(--primary-dark);
+    transform: scale(1.02);
+  }
+
+  /* AI Response Module */
+  .response-module {
+    margin-top: 40px;
+    padding: 40px;
+    background: #fdfdff;
+    border-radius: 24px;
+    border: 1px solid var(--slate-200);
+    border-left: 8px solid var(--primary);
+    animation: slideUp 0.6s ease;
+  }
+
+  @keyframes slideUp {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .response-text {
+    font-size: 1.15rem;
+    line-height: 1.8;
+    color: var(--slate-800);
+    white-space: pre-wrap;
+  }
+
+  /* Category Chips */
+  .chip-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 20px;
+  }
+
+  .suggest-chip {
+    padding: 12px 18px;
+    background: var(--slate-100);
+    border-radius: 14px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--slate-800);
+    text-decoration: none;
+    transition: 0.2s;
+    border: 1px solid transparent;
+  }
+
+  .suggest-chip:hover {
+    background: white;
+    border-color: var(--primary);
+    color: var(--primary);
+    transform: translateY(-3px);
+  }
+
+  /* Loading State */
+  .loader-box {
+    display: none;
+    text-align: center;
+    padding: 40px;
+  }
+
+  .dot-flashing {
+    position: relative;
+    width: 10px;
+    height: 10px;
+    border-radius: 5px;
+    background-color: var(--primary);
+    color: var(--primary);
+    animation: dot-flashing 1s infinite linear alternate;
+    margin: 0 auto;
+  }
+
+  @keyframes dot-flashing {
+    0% {
+      opacity: 1;
+    }
+    50%,
+    100% {
+      opacity: 0.2;
+    }
+  }
+
+  /* Responsive Fixes */
+  @media (max-width: 1024px) {
+    .dashboard-wrapper {
+      grid-template-columns: 1fr;
+      padding-top: 20px;
+    }
+    .sidebar-panel {
+      position: static;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .interaction-hub {
+      padding: 30px 20px;
+    }
+    .input-bar {
+      flex-direction: column;
+      border-radius: 20px;
+    }
+    .action-btn {
+      padding: 18px;
+      justify-content: center;
+      border-radius: 12px;
+    }
+    .hero-glass {
+      padding: 40px 24px;
+    }
+  }
+</style>
+
+<div class="dashboard-wrapper">
+  <!-- Sidebar Command Panel -->
+  <aside class="sidebar-panel">
+    <div class="tool-card reveal">
+      <div class="status-badge">
+        <div class="dot"></div>
+        Hybrid-Sync AI Core Active
+      </div>
+      <h4 style="font-weight: 900; margin-bottom: 20px; color: var(--primary)">
+        Knowledge Domains
+      </h4>
+
+      <p
+        style="
+          font-size: 0.85rem;
+          color: var(--slate-600);
+          margin-bottom: 20px;
+        ">
+        Specialized multi-disease vectors for clinical inference across the
+        pulmonary spectrum.
+      </p>
+
+      <div class="chip-group">
+        <a
+          href="#"
+          class="suggest-chip"
+          onclick="setQ('TB radiological patterns')"
+          >TB Patterns</a
+        >
+        <a
+          href="#"
+          class="suggest-chip"
+          onclick="setQ('Lung Cancer TNM staging')"
+          >Oncology Stage</a
+        >
+        <a
+          href="#"
+          class="suggest-chip"
+          onclick="setQ('Viral vs Bacterial opacities')"
+          >Pathology Diff</a
+        >
+        <a href="#" class="suggest-chip" onclick="setQ('Asthma biomarker risk')"
+          >Asthma Logic</a
+        >
+        <a
+          href="#"
+          class="suggest-chip"
+          onclick="setQ('CXR image quality checks')"
+          >Imaging Quality</a
+        >
+      </div>
+    </div>
+
+    <div
+      class="tool-card reveal"
+      style="background: var(--navy); color: white; border: none">
+      <h4 style="font-weight: 900; color: var(--primary-light)">
+        PWA Offline Cache
+      </h4>
+      <p style="font-size: 0.8rem; opacity: 0.7; margin-bottom: 0">
+        Clinical references and primary diagnostic guides [requires network].
+      </p>
+    </div>
+
+    <div
+      class="tool-card reveal"
+      style="background: #fffbeb; border-left: 6px solid var(--accent)">
+      <h4 style="font-weight: 900; color: #92400e; font-size: 0.95rem">
+        Safety Protocol
+      </h4>
+      <p style="font-size: 0.8rem; color: #b45309; line-height: 1.4; margin: 0">
+        This AI is a <strong>decision-support tool</strong>. All clinical
+        insights must be cross-referenced with official radiological reports.
+      </p>
+    </div>
+  </aside>
+
+  <!-- Main Intelligence Core -->
+  <main class="main-panel">
+    <section class="hero-glass reveal">
+      <h1>
+        Clinical AI <br /><span style="color: var(--primary-light)"
+          >Consultant.</span
+        >
+      </h1>
+      <p style="font-size: 1.15rem; opacity: 0.9; max-width: 600px">
+        Unified conversational intelligence for radiological interpretation and
+        deep pulmonary pathology analysis.
+      </p>
+    </section>
+
+    <section class="interaction-hub reveal">
+      <form method="POST" onsubmit="handleAsk()" class="input-group">
+        <div class="input-bar">
+          <input
+            type="text"
+            name="query"
+            class="query-input"
+            placeholder="Search symptoms, patterns, or system logic..."
+            required
+            autocomplete="off" />
+          <button type="submit" class="action-btn">
+            Analyze <span>→</span>
+          </button>
+        </div>
+      </form>
+
+      <div class="loader-box" id="loader">
+        <div class="dot-flashing"></div>
+        <p
+          style="
+            margin-top: 20px;
+            font-weight: 800;
+            color: var(--primary);
+            font-size: 0.85rem;
+          ">
+          CONSULTING MEDICAL DATABASE...
+        </p>
+      </div>
+
+      {% if response %}
+      <div class="response-module">
+        <div
+          style="
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 20px;
+          ">
+          <span style="font-size: 1.5rem">🧠</span>
+          <h3
+            style="
+              margin: 0;
+              font-weight: 950;
+              font-size: 1.2rem;
+              color: var(--primary-dark);
+            ">
+            Diagnostic Insight
+          </h3>
+        </div>
+        <div class="response-text">{{ response }}</div>
+
+        <div
+          style="
+            margin-top: 30px;
+            padding-top: 15px;
+            border-top: 1px solid var(--slate-100);
+          ">
+          <p
+            style="
+              font-size: 0.75rem;
+              color: var(--slate-400);
+              font-weight: 700;
+            ">
+            SOURCE: PNEUMOSCAN CLINICAL REPOSITORY • INF-0.4s
+          </p>
+        </div>
+      </div>
+      {% endif %}
+
+      <div style="margin-top: 40px">
+        <p
+          style="
+            font-weight: 850;
+            font-size: 0.9rem;
+            color: var(--slate-400);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 15px;
+          ">
+          Advanced Queries
+        </p>
+        <div class="chip-group">
+          <a
+            href="#"
+            class="suggest-chip"
+            onclick="
+              setQ('Differentiating pleural effusion from consolidation')
+            "
+            >Pleural Effusion Logic</a
+          >
+          <a
+            href="#"
+            class="suggest-chip"
+            onclick="setQ('Signs of lung cancer nodules on CT')"
+            >CT Nodule Matrix</a
+          >
+          <a
+            href="#"
+            class="suggest-chip"
+            onclick="setQ('How the system handles motion artifacts')"
+            >Motion Artifacts</a
+          >
+          <a
+            href="#"
+            class="suggest-chip"
+            onclick="setQ('Clinical guidelines for TB screening')"
+            >WHO TB Protocol</a
+          >
+        </div>
+      </div>
+    </section>
+
+    <section
+      class="reveal"
+      style="
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 30px;
+      ">
+      <div class="tool-card">
+        <h4 style="font-weight: 900; margin-bottom: 12px">System Accuracy</h4>
+        <div style="font-size: 2rem; font-weight: 950; color: var(--primary)">
+          98.4%
+        </div>
+        <p style="font-size: 0.8rem; color: var(--slate-400)">
+          Sensitivity across validated multi-center trials for primary
+          opacities.
+        </p>
+      </div>
+      <div class="tool-card">
+        <h4 style="font-weight: 900; margin-bottom: 12px">Data Encryption</h4>
+        <div style="font-size: 2rem; font-weight: 950; color: var(--primary)">
+          secure
+        </div>
+        <p style="font-size: 0.8rem; color: var(--slate-400)">
+          End-to-end security for all radiological metadata and consultant
+          queries.
+        </p>
+      </div>
+    </section>
+  </main>
+</div>
+
+<script>
+  function handleAsk() {
+    document.getElementById("loader").style.display = "block";
+    const res = document.querySelector(".response-module");
+    if (res) res.style.opacity = "0.3";
+  }
+
+  function setQ(text) {
+    const input = document.querySelector(".query-input");
+    input.value = text;
+    input.focus();
+    // Scroll smoothly to interaction
+    window.scrollTo({
+      top: document.querySelector(".interaction-hub").offsetTop - 100,
+      behavior: "smooth",
+    });
+  }
+
+  // Connectivity Awareness for PWA
+  function updateOfflineStatus() {
+    const dot = document.querySelector(".status-badge .dot");
+    const badgeText = document.querySelector(".status-badge").lastChild;
+    if (navigator.onLine) {
+      dot.style.background = "#10b981";
+      badgeText.textContent = " Hybrid-Sync AI Core Active";
+    } else {
+      dot.style.background = "#f59e0b";
+      badgeText.textContent = " Offline Clinical Mode Active";
+    }
+  }
+
+  window.addEventListener("online", updateOfflineStatus);
+  window.addEventListener("offline", updateOfflineStatus);
+
+  const observer = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) entry.target.classList.add("active");
+      });
+    },
+    { threshold: 0.1 },
+  );
+
+  document.querySelectorAll(".reveal").forEach((el) => observer.observe(el));
+  window.onload = updateOfflineStatus;
+</script>
+{% endblock %}

@@ -1,0 +1,12 @@
+<!-- Horizontal Navbar -->
+<nav class="navbar">
+  <div class="logo">⚕️ PneumoScan</div>
+  <span class="nav-toggle" onclick="toggleNav()">☰</span>
+  <div class="nav-links" id="navLinks">
+    <a href="{{ url_for('welcome') }}">home</a>
+
+    <a href="{{ url_for('login') }}">sign in</a>
+
+    <a href="{{ url_for('register') }}">sign up</a>
+  </div>
+</nav>

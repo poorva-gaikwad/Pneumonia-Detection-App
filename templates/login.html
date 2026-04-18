@@ -1,0 +1,283 @@
+{% extends "base.html" %} {% block title %}Login | PneumoScan Pro AI{% endblock
+%} {% block content %}
+<style>
+  :root {
+    --primary: #1976d2;
+    --primary-dark: #0d47a1;
+    --navy: #0a2540;
+    --slate-50: #f8fafc;
+    --slate-100: #f1f5f9;
+    --slate-200: #e2e8f0;
+    --slate-400: #94a3b8;
+    --slate-600: #475569;
+    --white: #ffffff;
+    --shadow-soft:
+      0 20px 25px -5px rgba(0, 0, 0, 0.05), 0 10px 10px -5px rgba(0, 0, 0, 0.02);
+  }
+
+  body {
+    background: var(--slate-50);
+    background-image: radial-gradient(
+      circle at top right,
+      var(--slate-100),
+      var(--white)
+    );
+    font-family:
+      "Inter",
+      system-ui,
+      -apple-system,
+      sans-serif;
+    min-height: 100vh;
+  }
+
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px 24px 80px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* Reveal Logic - Matches your Dashboards */
+  .reveal {
+    opacity: 1;
+    transform: translateY(30px);
+    transition: all 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+  .reveal.active {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* PWA Status Badge */
+  .pwa-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    background: var(--white);
+    border-radius: 100px;
+    font-size: 0.75rem;
+    font-weight: 800;
+    color: var(--primary);
+    box-shadow: var(--shadow-soft);
+    margin-bottom: 32px;
+    border: 1px solid var(--slate-200);
+  }
+
+  /* Login Card - Matches Hero-Card geometry */
+  .login-card {
+    background: var(--white);
+    width: 100%;
+    max-width: 480px;
+    padding: 50px;
+    border-radius: 40px;
+    box-shadow: var(--shadow-soft);
+    border: 1px solid var(--slate-100);
+  }
+
+  .tagline {
+    color: var(--primary);
+    font-weight: 800;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    display: block;
+    margin-bottom: 12px;
+    text-align: center;
+  }
+
+  .login-card h1 {
+    font-size: 2rem;
+    font-weight: 900;
+    color: var(--navy);
+    margin-bottom: 32px;
+    text-align: center;
+    letter-spacing: -0.03em;
+  }
+
+  .form-group {
+    margin-bottom: 20px;
+  }
+
+  label {
+    display: block;
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--slate-600);
+    margin-bottom: 8px;
+  }
+
+  .input-field {
+    width: 100%;
+    padding: 16px;
+    border-radius: 14px;
+    border: 1.5px solid var(--slate-200);
+    background: var(--slate-50);
+    font-size: 1rem;
+    transition: 0.3s;
+    box-sizing: border-box;
+  }
+
+  .input-field:focus {
+    outline: none;
+    border-color: var(--primary);
+    background: var(--white);
+    box-shadow: 0 0 0 4px rgba(25, 118, 210, 0.1);
+  }
+
+  /* Captcha Section Styling */
+  .captcha-container {
+    background: var(--slate-50);
+    padding: 15px;
+    border-radius: 14px;
+    margin: 25px 0;
+    display: flex;
+    justify-content: center;
+    border: 1px solid var(--slate-100);
+  }
+
+  .btn-login {
+    width: 100%;
+    background: var(--navy);
+    color: var(--white);
+    padding: 18px;
+    border-radius: 16px;
+    border: none;
+    font-weight: 800;
+    cursor: pointer;
+    transition: 0.3s;
+    font-size: 1rem;
+    box-shadow: 0 10px 20px rgba(10, 37, 64, 0.1);
+  }
+
+  .btn-login:hover {
+    background: var(--primary);
+    transform: translateY(-2px);
+    box-shadow: 0 15px 30px rgba(25, 118, 210, 0.2);
+  }
+
+  .footer-links {
+    text-align: center;
+    margin-top: 30px;
+    font-size: 0.9rem;
+    color: var(--slate-600);
+  }
+
+  .footer-links a {
+    color: var(--primary);
+    font-weight: 800;
+    text-decoration: none;
+  }
+
+  @media (max-width: 600px) {
+    .login-card {
+      padding: 35px 20px;
+      border-radius: 30px;
+    }
+    .container {
+      padding: 15px;
+    }
+  }
+</style>
+
+<div class="container">
+  {% with messages = get_flashed_messages(with_categories=true) %} {% if
+  messages %} {% for category, message in messages %}
+  <div
+    class="alert alert-{{ 'danger' if category == 'danger' else 'success' if category == 'success' else 'warning' }} alert-dismissible fade show"
+    role="alert">
+    {{ message }}
+    <button
+      type="button"
+      class="btn-close"
+      data-bs-dismiss="alert"
+      aria-label="Close"></button>
+  </div>
+  {% endfor %} {% endif %} {% endwith %}
+
+  <!-- PWA Status -->
+  <div class="pwa-status reveal">
+    <span id="conn-dot" style="color: #10b981">●</span>
+    <span id="conn-text">Clinical Network Active</span>
+  </div>
+
+  <div class="login-card reveal">
+    <span class="tagline">Authorization Required</span>
+    <h1>Sign In</h1>
+
+    <form method="POST">
+      <div class="form-group">
+        <label>Professional ID</label>
+        <input
+          type="text"
+          name="username"
+          class="input-field"
+          placeholder="Username"
+          autocomplete="username"
+          required
+          autofocus />
+      </div>
+
+      <div class="form-group">
+        <label>Security Key</label>
+        <input
+          type="password"
+          name="password"
+          class="input-field"
+          placeholder="Password"
+          autocomplete="new-password"
+          required />
+      </div>
+
+      <!-- CRITICAL: Captcha Section Maintained -->
+      <div class="captcha-container">
+        <div
+          class="g-recaptcha"
+          data-sitekey="{{ config['RECAPTCHA_SITE_KEY'] }}"></div>
+      </div>
+
+      <button type="submit" class="btn-login">Verify & Enter &rarr;</button>
+    </form>
+
+    <div class="footer-links">
+      Authorized personnel only. <a href="/register">Register Clinic</a>
+    </div>
+  </div>
+</div>
+
+<!-- Scripts -->
+<script src="https://www.google.com/recaptcha/api.js" async defer></script>
+<script>
+  // Shared Animation Logic
+  const observer = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) entry.target.classList.add("active");
+      });
+    },
+    { threshold: 0.1 },
+  );
+
+  document.querySelectorAll(".reveal").forEach((el) => observer.observe(el));
+
+  // Connectivity Logic
+  function updateStatus() {
+    const dot = document.getElementById("conn-dot");
+    const text = document.getElementById("conn-text");
+    if (navigator.onLine) {
+      dot.style.color = "#10b981";
+      text.innerText = "Clinical Network Active";
+    } else {
+      dot.style.color = "#ef4444";
+      text.innerText = "PWA Offline Mode";
+    }
+  }
+
+  window.addEventListener("online", updateStatus);
+  window.addEventListener("offline", updateStatus);
+  updateStatus();
+</script>
+{% endblock %}

@@ -1,0 +1,371 @@
+{% extends "base.html" %}
+{% block title %}User Management | PneumoScan Pro AI{% endblock %}
+
+{% block content %}
+<style>
+  :root {
+    --primary: #1976d2;
+    --navy: #0a2540;
+    --slate-50: #f8fafc;
+    --slate-100: #f1f5f9;
+    --slate-200: #e2e8f0;
+    --slate-400: #94a3b8;
+    --slate-600: #475569;
+    --white: #ffffff;
+    --emerald: #10b981;
+    --rose: #ef4444;
+    --shadow-soft: 0 20px 25px -5px rgba(0, 0, 0, 0.05), 0 10px 10px -5px rgba(0, 0, 0, 0.02);
+    --radius-xl: 40px;
+  }
+
+  body {
+    background-color: var(--slate-50);
+    background-image: radial-gradient(at 100% 0%, var(--slate-100) 0%, transparent 40%);
+    font-family: 'Inter', -apple-system, system-ui, sans-serif;
+    color: var(--navy);
+  }
+
+  .container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 12px 16px 120px;
+  }
+
+  /* Reveal Animations */
+  .reveal {
+    opacity: 1;
+    transform: translateY(20px);
+    transition: all 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+  .reveal.active {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* Header & Search Engine */
+  .control-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    margin-bottom: 32px;
+    flex-wrap: wrap;
+    gap: 24px;
+    padding: 24px 0;
+  }
+
+  .title-group h1 { font-size: clamp(1.8rem, 5vw, 2.8rem); font-weight: 900; letter-spacing: -0.04em; margin: 0; }
+  .tagline { color: var(--primary); font-weight: 800; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.15em; display: block; margin-bottom: 8px; }
+
+  .search-wrapper {
+    position: relative;
+    width: 100%;
+    max-width: 400px;
+  }
+
+  .search-wrapper input {
+    width: 100%;
+    padding: 16px 20px 16px 50px;
+    border-radius: 20px;
+    border: 1.5px solid var(--slate-200);
+    background: var(--white);
+    font-size: 0.95rem;
+    font-weight: 600;
+    transition: 0.3s;
+    box-shadow: var(--shadow-soft);
+  }
+
+  .search-wrapper input:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 4px rgba(25, 118, 210, 0.1);
+  }
+
+  .search-icon {
+    position: absolute;
+    left: 18px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 1.2rem;
+    opacity: 0.4;
+  }
+
+  /* Table UI Architecture */
+  .management-hub {
+    background: var(--white);
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-soft);
+    border: 1px solid var(--slate-200);
+    overflow: hidden;
+  }
+
+  .table-scroll {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  table { width: 100%; border-collapse: collapse; min-width: 900px; }
+
+  th {
+    background: var(--slate-50);
+    padding: 24px;
+    text-align: left;
+    font-size: 0.7rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--slate-600);
+    border-bottom: 1px solid var(--slate-100);
+  }
+
+  td { padding: 20px 24px; border-bottom: 1px solid var(--slate-50); }
+
+  /* User Profiling */
+  .user-cell { display: flex; align-items: center; gap: 16px; }
+  .avatar-pill {
+    width: 48px; height: 48px;
+    background: var(--slate-100);
+    border-radius: 16px;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 900; color: var(--primary);
+    font-size: 1.2rem;
+    border: 2px solid var(--white);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+  }
+
+  .user-meta b { display: block; font-size: 1rem; color: var(--navy); }
+  .user-meta span { font-size: 0.8rem; color: var(--slate-400); font-weight: 600; }
+
+  /* Badges */
+  .status-pill {
+    padding: 6px 14px;
+    border-radius: 100px;
+    font-size: 0.7rem;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  .role-label { background: var(--slate-100); color: var(--navy); }
+  .state-active { background: #e6f7ef; color: var(--emerald); }
+  .state-blocked { background: #fef2f2; color: var(--rose); }
+
+  /* Action Controls */
+  .control-group { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+  
+  .role-select {
+    padding: 10px 14px;
+    border-radius: 12px;
+    border: 1.5px solid var(--slate-200);
+    background: var(--slate-50);
+    font-size: 0.85rem;
+    font-weight: 700;
+    cursor: pointer;
+  }
+
+  .action-btn {
+    padding: 10px 18px;
+    border-radius: 12px;
+    font-weight: 800;
+    font-size: 0.8rem;
+    cursor: pointer;
+    border: none;
+    transition: 0.3s;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .btn-prime { background: var(--navy); color: white; }
+  .btn-prime:hover { background: var(--primary); transform: translateY(-2px); }
+
+  .btn-ghost { background: var(--slate-100); color: var(--navy); }
+  .btn-ghost:hover { background: var(--slate-200); }
+
+  .btn-danger { background: #fff1f2; color: var(--rose); }
+  .btn-danger:hover { background: var(--rose); color: white; }
+
+  /* PWA Sticky Node */
+  .pwa-pill {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--navy);
+    color: white;
+    padding: 12px 24px;
+    border-radius: 100px;
+    font-size: 0.7rem;
+    font-weight: 900;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    z-index: 1000;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    border: 1px solid rgba(255,255,255,0.1);
+    white-space: nowrap;
+  }
+
+  /* Responsive Transformation */
+  @media (max-width: 900px) {
+    .container { padding: 8px 12px 100px; }
+    .control-header { flex-direction: column; align-items: stretch; text-align: center; }
+    .search-wrapper { max-width: 100%; }
+
+    table, thead, tbody, th, td, tr { display: block; }
+    thead tr { position: absolute; top: -9999px; left: -9999px; }
+    
+    tr { 
+      margin-bottom: 20px; 
+      border: 1px solid var(--slate-200); 
+      border-radius: 30px; 
+      padding: 20px;
+      background: var(--white);
+    }
+
+    td {
+      border: none;
+      border-bottom: 1px solid var(--slate-50);
+      position: relative;
+      padding-left: 50%;
+      text-align: right;
+      padding-top: 15px;
+      padding-bottom: 15px;
+    }
+
+    td::before {
+      content: attr(data-label);
+      position: absolute;
+      left: 15px;
+      width: 45%;
+      white-space: nowrap;
+      text-align: left;
+      font-weight: 900;
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      color: var(--navy);
+    }
+
+    .user-cell { justify-content: flex-end; }
+    .control-group { justify-content: flex-end; width: 100%; margin-top: 10px; }
+  }
+</style>
+
+<div class="container">
+  <!-- PWA Indicator -->
+  <div class="pwa-pill">
+    <span id="sync-dot" style="color: var(--emerald);">●</span>
+    <span id="sync-text">ADMIN NODE: CLOUD SYNCED</span>
+  </div>
+
+  <!-- Header -->
+  <header class="control-header reveal">
+    <div class="title-group">
+      <span class="tagline">System Administration</span>
+      <h1>Institutional Users</h1>
+    </div>
+    <div class="search-wrapper">
+      <span class="search-icon">🔍</span>
+      <input type="text" id="userFilter" placeholder="Search accounts..." onkeyup="runUserSearch()">
+    </div>
+  </header>
+
+  <!-- User Table -->
+  <div class="management-hub reveal">
+    <div class="table-scroll">
+      <table id="mainUserTable">
+        <thead>
+          <tr>
+            <th>Identity Reference</th>
+            <th>Role Assignment</th>
+            <th>Account Status</th>
+            <th>Administrative Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for user in users %}
+          <tr>
+            <td data-label="Identity Reference">
+              <div class="user-cell">
+                <div class="avatar-pill">{{ user.username[0]|upper }}</div>
+                <div class="user-meta" style="text-align: left;">
+                  <b>{{ user.username }}</b>
+                  <span>{{ user.email }}</span>
+                </div>
+              </div>
+            </td>
+            <td data-label="Role Assignment">
+              <span class="status-pill role-label">{{ user.role|upper }}</span>
+            </td>
+            <td data-label="Account Status">
+              {% if user.is_active %}
+                <span class="status-pill state-active">Active</span>
+              {% else %}
+                <span class="status-pill state-blocked">Restricted</span>
+              {% endif %}
+            </td>
+            <td data-label="Administrative Actions">
+              <div class="control-group">
+                <!-- Role Management -->
+                <form method="POST" action="{{ url_for('change_role', user_id=user.id) }}" style="display:flex; gap:8px;">
+                  <select name="new_role" class="role-select">
+                    <option value="patient" {% if user.role == 'patient' %}selected{% endif %}>Patient</option>
+                    <option value="doctor" {% if user.role == 'doctor' %}selected{% endif %}>Doctor</option>
+                    <option value="admin" {% if user.role == 'admin' %}selected{% endif %}>Admin</option>
+                  </select>
+                  <button type="submit" class="action-btn btn-prime">Update</button>
+                </form>
+                
+                <!-- Status Toggle -->
+                <form method="POST" action="{{ url_for('toggle_user_status', user_id=user.id) }}">
+                  <button type="submit" class="action-btn btn-ghost">
+                    {{ 'Deactivate' if user.is_active else 'Activate' }}
+                  </button>
+                </form>
+
+                <!-- Termination -->
+                <form method="POST" action="{{ url_for('delete_user', user_id=user.id) }}" onsubmit="return confirm('Confirm permanent deletion of this record?');">
+                  <button type="submit" class="action-btn btn-danger">Delete</button>
+                </form>
+              </div>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Animation Observer
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => { if (entry.isIntersecting) entry.target.classList.add('active'); });
+  }, { threshold: 0.1 });
+  document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+  // Search Engine Logic
+  function runUserSearch() {
+    const input = document.getElementById("userFilter").value.toLowerCase();
+    const rows = document.querySelectorAll("#mainUserTable tbody tr");
+    rows.forEach(row => {
+      row.style.display = row.innerText.toLowerCase().includes(input) ? "" : "none";
+    });
+  }
+
+  // PWA Offline/Online Sync Monitor
+  function monitorConnectivity() {
+    const dot = document.getElementById('sync-dot');
+    const text = document.getElementById('sync-text');
+    if (navigator.onLine) {
+      dot.style.color = 'var(--emerald)';
+      text.innerText = 'ADMIN NODE: CLOUD SYNCED';
+    } else {
+      dot.style.color = 'var(--rose)';
+      text.innerText = 'OFFLINE: CACHED LOGS';
+    }
+  }
+  window.addEventListener('online', monitorConnectivity);
+  window.addEventListener('offline', monitorConnectivity);
+  monitorConnectivity();
+</script>
+{% endblock %}

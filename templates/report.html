@@ -1,0 +1,627 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Clinical Evaluation Report | PneumoScan Pro</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=Plus+Jakarta+Sans:wght@500;700;800&display=swap"
+      rel="stylesheet" />
+    <style>
+      :root {
+        --primary: #0f172a;
+        --accent: #2563eb;
+        --success: #15803d;
+        --danger: #be123c;
+        --slate-50: #f8fafc;
+        --slate-100: #f1f5f9;
+        --slate-200: #e2e8f0;
+        --slate-400: #94a3b8;
+        --slate-600: #475569;
+        --white: #ffffff;
+        --a4-width: 210mm;
+        --a4-height: 297mm;
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        -webkit-print-color-adjust: exact;
+      }
+
+      body {
+        background-color: var(--slate-100);
+        font-family: "Plus Jakarta Sans", "Inter", sans-serif;
+        color: var(--primary);
+        line-height: 1.5;
+      }
+
+      /* Container for screen viewing */
+      .report-wrapper {
+        padding: 40px 20px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 40px;
+      }
+
+      /* Strict A4 Styling */
+      .page {
+        background: var(--white);
+        width: var(--a4-width);
+        height: var(--a4-height);
+        padding: 20mm 15mm;
+        box-shadow: 0 0 40px rgba(0, 0, 0, 0.1);
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        page-break-after: always;
+      }
+
+      /* Professional Header */
+      .header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        border-bottom: 3px solid var(--primary);
+        padding-bottom: 20px;
+        margin-bottom: 30px;
+      }
+
+      .brand-box h1 {
+        font-size: 1.8rem;
+        font-weight: 800;
+        letter-spacing: -1px;
+        text-transform: uppercase;
+      }
+      .brand-box p {
+        font-size: 0.75rem;
+        color: var(--accent);
+        font-weight: 700;
+        letter-spacing: 1px;
+        margin-top: 4px;
+      }
+
+      .report-meta {
+        text-align: right;
+        font-size: 0.8rem;
+        line-height: 1.6;
+      }
+      .report-meta b {
+        color: var(--slate-600);
+      }
+
+      /* Section Heads */
+      .section-header {
+        background: var(--slate-50);
+        border-left: 4px solid var(--accent);
+        padding: 10px 15px;
+        margin: 25px 0 15px;
+        font-size: 0.85rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+
+      /* Demographics Table-Style Grid */
+      .patient-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        border: 1px solid var(--slate-200);
+        border-radius: 8px;
+        overflow: hidden;
+      }
+
+      .p-cell {
+        padding: 12px 15px;
+        border: 0.5px solid var(--slate-100);
+        display: flex;
+        flex-direction: column;
+      }
+
+      .p-cell label {
+        font-size: 0.65rem;
+        color: var(--slate-400);
+        font-weight: 700;
+        text-transform: uppercase;
+        margin-bottom: 4px;
+      }
+      .p-cell span {
+        font-size: 0.9rem;
+        font-weight: 700;
+        color: var(--primary);
+      }
+
+      /* Observation Blocks */
+      .observation-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 15px;
+        margin-bottom: 25px;
+      }
+
+      .obs-box {
+        padding: 15px;
+        border: 1px solid var(--slate-200);
+        border-radius: 12px;
+        min-height: 80px;
+      }
+
+      .obs-box h4 {
+        font-size: 0.7rem;
+        color: var(--accent);
+        text-transform: uppercase;
+        margin-bottom: 8px;
+        font-weight: 800;
+      }
+      .obs-box p {
+        font-size: 0.85rem;
+        font-weight: 600;
+      }
+
+      /* Main Result Focus */
+      .result-highlight {
+        background: var(--slate-50);
+        border-radius: 16px;
+        padding: 24px;
+        margin-bottom: 25px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .pred-text {
+        font-size: 1.6rem;
+        font-weight: 800;
+      }
+      .pos {
+        color: var(--danger);
+      }
+      .neg {
+        color: var(--success);
+      }
+
+      .metrics {
+        display: flex;
+        gap: 30px;
+      }
+      .m-item {
+        text-align: center;
+      }
+      .m-lab {
+        font-size: 0.6rem;
+        color: var(--slate-400);
+        font-weight: 800;
+        text-transform: uppercase;
+        display: block;
+      }
+      .m-val {
+        font-size: 1.2rem;
+        font-weight: 800;
+        color: var(--primary);
+      }
+
+      /* High Res Imaging */
+      .image-center {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+        flex-grow: 1; /* Fills remaining space */
+      }
+
+      .medical-img {
+        border: 1px solid var(--slate-200);
+        border-radius: 12px;
+        background: #000;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .medical-img img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+        flex-grow: 1;
+      }
+      .medical-img .label {
+        background: var(--white);
+        text-align: center;
+        font-size: 0.65rem;
+        font-weight: 800;
+        padding: 8px;
+        border-top: 1px solid var(--slate-200);
+        color: var(--slate-600);
+      }
+
+      /* Specialized Tests */
+      .test-row {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+        flex-grow: 1;
+      }
+
+      .test-card {
+        padding: 20px;
+        border-radius: 12px;
+        border: 1px solid var(--slate-200);
+      }
+
+      .test-card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 12px;
+        border-bottom: 1px dashed var(--slate-200);
+        padding-bottom: 10px;
+      }
+      .test-card-header h3 {
+        font-size: 0.85rem;
+        font-weight: 800;
+        color: var(--slate-600);
+      }
+
+      /* Legal & Signatures */
+      .footer-content {
+        margin-top: auto;
+        padding-top: 30px;
+      }
+
+      .signature-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 100px;
+        margin-bottom: 30px;
+      }
+
+      .sig-line {
+        border-top: 2px solid var(--primary);
+        text-align: center;
+        padding-top: 10px;
+        font-size: 0.75rem;
+        font-weight: 700;
+      }
+
+      .legal-notice {
+        background: var(--slate-50);
+        padding: 15px;
+        border-radius: 10px;
+        font-size: 0.6rem;
+        color: var(--slate-600);
+        line-height: 1.6;
+        text-align: justify;
+      }
+
+      /* Floating Controls */
+      .pwa-controls {
+        position: fixed;
+        bottom: 30px;
+        right: 30px;
+        display: flex;
+        gap: 15px;
+        z-index: 1000;
+      }
+
+      .btn {
+        padding: 14px 28px;
+        border-radius: 50px;
+        font-weight: 800;
+        font-size: 0.85rem;
+        cursor: pointer;
+        border: none;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        transition: 0.3s;
+        text-decoration: none;
+      }
+
+      .btn-blue {
+        background: var(--accent);
+        color: white;
+      }
+      .btn-white {
+        background: white;
+        color: var(--primary);
+        border: 1px solid var(--slate-200);
+      }
+
+      @media print {
+        body {
+          background: white;
+        }
+        .report-wrapper {
+          padding: 0;
+        }
+        .page {
+          margin: 0;
+          box-shadow: none;
+          width: 210mm;
+          height: 297mm;
+        }
+        .pwa-controls {
+          display: none !important;
+        }
+      }
+
+      /* Responsive scaling */
+      @media (max-width: 210mm) {
+        .page {
+          width: 95vw;
+          height: auto;
+          min-height: 100vh;
+          padding: 20px;
+        }
+        .patient-grid {
+          grid-template-columns: 1fr 1fr;
+        }
+        .observation-row,
+        .image-center {
+          grid-template-columns: 1fr;
+        }
+        .pwa-controls {
+          position: relative;
+          bottom: 0;
+          right: 0;
+          margin: 20px 0;
+          justify-content: center;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="report-wrapper">
+      <!-- PAGE 01: BIOMETRICS & MAIN EVALUATION -->
+      <div class="page">
+        <header class="header">
+          <div class="brand-box">
+            <h1>PNEUMOSCAN PRO</h1>
+            <p>Advanced Clinical Intelligence Report</p>
+          </div>
+          <div class="report-meta">
+            <b>Case ID:</b> #{{ scan.id }}<br />
+            <b>Reported:</b> {{ scan.timestamp.strftime('%d %b %Y | %H:%M') if
+            scan.timestamp else 'PRESENT' }}
+          </div>
+        </header>
+
+        <div class="section-header">01. Patient Demographics & Baseline</div>
+        <div class="patient-grid">
+          <div class="p-cell">
+            <label>Full Name</label
+            ><span>{{ scan.patient_name or 'ANONYMOUS' }}</span>
+          </div>
+          <div class="p-cell">
+            <label>Age / Gender</label
+            ><span>{{ scan.age or '--' }}Y / {{ scan.gender or '--' }}</span>
+          </div>
+          <div class="p-cell">
+            <label>Clinical Temp</label
+            ><span>{{ scan.body_temperature or '--' }} °F</span>
+          </div>
+          <div class="p-cell">
+            <label>Weight / Height</label
+            ><span
+              >{{ scan.weight or '--' }}kg / {{ scan.height or '--' }}cm</span
+            >
+          </div>
+          <div class="p-cell">
+            <label>Record Key</label><span>SHA-{{ scan.id }}</span>
+          </div>
+          <div class="p-cell">
+            <label>Facility</label><span>Clinical Cloud Node</span>
+          </div>
+        </div>
+
+        <div class="section-header">02. Observational Symptomology</div>
+        <div class="observation-row">
+          <div class="obs-box">
+            <h4>Identified Symptoms</h4>
+            <p>
+              {% if scan.symptoms %}{{ scan.symptoms|join(', ') }}{% else %}No
+              acute symptoms documented.{% endif %}
+            </p>
+          </div>
+          <div class="obs-box" style="border-left: 4px solid var(--accent)">
+            <h4>Pathogenic Risks</h4>
+            <p>
+              {% if scan.risks %}{{ scan.risks|join(', ') }}{% else %}No
+              external risk factors identified.{% endif %}
+            </p>
+          </div>
+        </div>
+
+        <div class="section-header">
+          03. Neural Inference (Pneumonia Assessment)
+        </div>
+        <div class="result-highlight">
+          <div
+            class="pred-text {{ 'neg' if 'normal' in (scan.prediction_label|default('')|lower) else 'pos' }}">
+            {{ (scan.prediction_label|default('Awaiting Analysis'))|upper }}
+          </div>
+          <div class="metrics">
+            <div class="m-item">
+              <span class="m-lab">Confidence</span
+              ><span class="m-val">{{ scan.confidence or '0' }}%</span>
+            </div>
+            <div class="m-item">
+              <span class="m-lab">Consolidation</span
+              ><span class="m-val"
+                >{{ scan.presence_percentage or '0.00' }}%</span
+              >
+            </div>
+          </div>
+        </div>
+
+        <div class="image-center">
+          {% if scan.image_filename %}
+          <div class="medical-img">
+            <img
+              src="{{ url_for('uploaded_file', filename=scan.image_filename) }}"
+              alt="CXR Image" />
+            <div class="label">PRIMARY RADIOGRAPH (FRONTAL CXR)</div>
+          </div>
+          {% endif %} {% if scan.heatcam_filename %}
+          <div class="medical-img">
+            <img
+              src="{{ url_for('uploaded_file', filename=scan.heatcam_filename) }}"
+              alt="Thermal CAM" />
+            <div class="label">GRAD-CAM NEURAL LOCALIZATION</div>
+          </div>
+          {% endif %}
+        </div>
+
+        <div
+          style="
+            margin-top: 20px;
+            text-align: center;
+            font-size: 0.65rem;
+            color: var(--slate-400);
+            font-weight: 700;
+            letter-spacing: 2px;
+          ">
+          PAGINATION 01 / 02 • SECURE CLINICAL METADATA
+        </div>
+      </div>
+
+      <!-- PAGE 02: SPECIALIZED PANELS & AUTHENTICATION -->
+      <div class="page">
+        <div class="section-header" style="margin-top: 0">
+          04. Specialized Differential Diagnostics
+        </div>
+
+        <div class="test-row">
+          <!-- Tuberculosis Panel -->
+          <div class="test-card">
+            <div class="test-card-header">
+              <h3>A. TUBERCULOSIS (TB) SCREENING</h3>
+              <span>PROBABILITY MAP</span>
+            </div>
+            {% if scan.tb_records %} {% for record in scan.tb_records %}
+            <div
+              style="
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-top: 5px;
+              ">
+              <span
+                class="pred-text {{ 'pos' if 'tuberculosis' in record.prediction_label|lower else 'neg' }}"
+                style="font-size: 1.1rem">
+                {{ record.prediction_label|upper }}
+              </span>
+              <b style="font-size: 1rem">{{ record.confidence or '0' }}%</b>
+            </div>
+            {% endfor %} {% else %}
+            <p
+              style="
+                font-size: 0.8rem;
+                color: var(--slate-400);
+                font-style: italic;
+              ">
+              Panel not required based on initial triage markers.
+            </p>
+            {% endif %}
+          </div>
+
+          <!-- Asthma Panel -->
+          <div class="test-card" style="border-left: 5px solid var(--accent)">
+            <div class="test-card-header">
+              <h3>B. BRONCHIAL PERFORMANCE (ASTHMA)</h3>
+              <span>PHYSIOLOGICAL BIOMARKERS</span>
+            </div>
+            {% if scan.asthma_records %} {% for record in scan.asthma_records %}
+            <div
+              style="
+                display: flex;
+                justify-content: space-between;
+                align-items: flex-end;
+              ">
+              <span
+                class="pred-text {{ 'neg' if 'no' in record.prediction_label|lower else 'pos' }}"
+                style="font-size: 1.1rem">
+                {{ record.prediction_label|upper }}
+              </span>
+              <div style="display: flex; gap: 20px">
+                <div style="text-align: center">
+                  <label class="m-lab">PEF</label
+                  ><b style="font-size: 0.9rem">{{ record.pef or '--' }}</b>
+                </div>
+                <div style="text-align: center">
+                  <label class="m-lab">FeNO</label
+                  ><b style="font-size: 0.9rem">{{ record.feno or '--' }}</b>
+                </div>
+              </div>
+            </div>
+            {% endfor %} {% else %}
+            <p
+              style="
+                font-size: 0.8rem;
+                color: var(--slate-400);
+                font-style: italic;
+              ">
+              Airway dynamics remain consistent with baseline parameters.
+            </p>
+            {% endif %}
+          </div>
+        </div>
+
+        <div class="footer-content">
+          <div class="signature-grid">
+            <div class="sig-line">Designated Medical Officer</div>
+            <div class="sig-line">Digital Verification Seal</div>
+          </div>
+
+          <div class="legal-notice">
+            <b>CLINICAL ATTESTATION:</b> This document is electronically
+            generated by the PneumoScan Pro Clinical Decision Support System
+            (CDSS). All probability thresholds and localization inferences must
+            be
+            <b>cross-validated by a board-certified Radiologist or Physician</b>
+            before clinical disposition. This report is not a primary diagnosis
+            but serves as a clinical intelligence augment. PneumoScan Pro
+            assumes no liability for therapeutic paths chosen without secondary
+            human medical review.
+          </div>
+
+          <div
+            style="
+              text-align: center;
+              margin-top: 40px;
+              padding-top: 20px;
+              border-top: 1px solid var(--slate-100);
+            ">
+            <p
+              style="
+                font-weight: 800;
+                font-size: 1rem;
+                letter-spacing: 3px;
+                color: var(--primary);
+              ">
+              *** END OF EVALUATION RECORD ***
+            </p>
+            <p
+              style="
+                font-size: 0.7rem;
+                color: var(--slate-400);
+                margin-top: 10px;
+              ">
+              VALIDATED ELECTRONIC SIGNATURE: 0x{{ scan.id|upper }}
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- PWA CONTROLS -->
+      <div class="pwa-controls">
+        <a href="{{ url_for('history') }}" class="btn btn-white"
+          >Case History</a
+        >
+        <button onclick="window.print()" class="btn btn-blue">
+          Download Medical PDF
+        </button>
+      </div>
+    </div>
+  </body>
+</html>

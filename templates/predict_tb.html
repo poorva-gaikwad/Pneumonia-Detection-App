@@ -1,0 +1,519 @@
+{% extends "base.html" %} {% block title %}TB Detection | PneumoScan Pro{%
+endblock %} {% block content %}
+<style>
+  :root {
+    /* Color Palette - Navy Blue Focus matched to Dashboard */
+    --primary: #1e40af;
+    --primary-light: #3b82f6;
+    --primary-dark: #0f172a;
+    --navy: #0f172a;
+    --slate-50: #f8fafc;
+    --slate-100: #f1f5f9;
+    --slate-200: #e2e8f0;
+    --slate-400: #94a3b8;
+    --slate-600: #475569;
+    --white: #ffffff;
+    --shadow-xl: 0 25px 50px -12px rgba(15, 23, 42, 0.15);
+    --radius-xl: 40px;
+    --rose: #ef4444;
+    --emerald: #10b981;
+  }
+
+  body {
+    background: var(--slate-50);
+    background-image: radial-gradient(
+      circle at 100% 0%,
+      #e2e8f0 0%,
+      transparent 25%
+    );
+    font-family: "Plus Jakarta Sans", system-ui, sans-serif;
+    color: var(--navy);
+  }
+
+  .container {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 60px 20px;
+  }
+  .nav-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+    margin-bottom: 50px;
+  }
+
+  .nav-card {
+    background: var(--white);
+    padding: 20px;
+    border-radius: 20px;
+    text-decoration: none;
+    color: var(--navy);
+    font-weight: 800;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    border: 1px solid var(--slate-100);
+    box-shadow: var(--shadow-soft);
+    transition: var(--transition);
+  }
+
+  .nav-card:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--shadow-xl);
+    border-color: var(--primary-light);
+  }
+
+  .nav-card .icon {
+    font-size: 1.4rem;
+  }
+  /* Reveal Animations */
+  .reveal {
+    opacity: 1;
+    transform: translateY(30px);
+    transition: all 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+  .reveal.active {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* Hero Section */
+  .diagnostic-hero {
+    background: var(--navy);
+    padding: 60px 40px;
+    border-radius: var(--radius-xl);
+    color: white;
+    margin-bottom: 40px;
+    box-shadow: var(--shadow-xl);
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .diagnostic-hero h1 {
+    font-size: clamp(2rem, 5vw, 3rem);
+    font-weight: 900;
+    letter-spacing: -0.05em;
+    margin-bottom: 15px;
+  }
+
+  .diagnostic-hero p {
+    color: var(--slate-400);
+    max-width: 700px;
+    margin: 0 auto;
+    line-height: 1.6;
+  }
+
+  /* Upload Hub */
+  .upload-hub {
+    background: var(--white);
+    padding: 50px;
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-xl);
+    border: 1px solid var(--slate-100);
+  }
+
+  .dropzone {
+    border: 2px dashed var(--slate-200);
+    border-radius: 24px;
+    padding: 60px 20px;
+    text-align: center;
+    background: var(--slate-50);
+    cursor: pointer;
+    transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+  }
+
+  .dropzone:hover {
+    border-color: var(--primary);
+    background: var(--white);
+    transform: translateY(-2px);
+  }
+
+  /* Custom File Input UX */
+  .form-control {
+    padding: 14px 18px;
+    border-radius: 12px;
+    border: 2px solid var(--slate-100);
+    margin-top: 15px;
+  }
+
+  .btn-analyze {
+    width: 100%;
+    background: var(--navy);
+    color: white;
+    padding: 22px;
+    border-radius: 20px;
+    border: none;
+    font-weight: 800;
+    font-size: 1.2rem;
+    cursor: pointer;
+    transition: 0.3s ease;
+    margin-top: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    box-shadow: 0 10px 20px rgba(15, 23, 42, 0.2);
+  }
+
+  .btn-analyze:hover {
+    background: var(--primary);
+    transform: translateY(-4px);
+    box-shadow: 0 15px 30px rgba(30, 64, 175, 0.3);
+  }
+
+  /* Results Section */
+  .result-hub {
+    background: var(--white);
+    padding: 50px;
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-xl);
+    margin-top: 40px;
+    border: 1px solid var(--slate-100);
+  }
+
+  .status-pill {
+    padding: 12px 28px;
+    border-radius: 100px;
+    font-weight: 900;
+    font-size: 1rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .status-positive {
+    background: #fef2f2;
+    color: var(--rose);
+  }
+  .status-negative {
+    background: #ecfdf5;
+    color: var(--emerald);
+  }
+
+  .metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+    margin: 30px 0;
+  }
+
+  .metric-card {
+    background: var(--slate-50);
+    padding: 25px;
+    border-radius: 24px;
+    border: 1px solid var(--slate-100);
+    text-align: center;
+  }
+
+  .metric-label {
+    font-size: 0.75rem;
+    font-weight: 800;
+    color: var(--slate-400);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+  }
+  .metric-value {
+    font-size: 2rem;
+    font-weight: 900;
+    color: var(--navy);
+    display: block;
+  }
+
+  /* Description Card */
+  .info-block {
+    margin-top: 40px;
+    background: #fdfdfd;
+    padding: 30px;
+    border-radius: 24px;
+    border-left: 6px solid var(--primary);
+  }
+
+  .info-block h4 {
+    font-weight: 800;
+    color: var(--navy);
+    margin-bottom: 12px;
+  }
+  .info-block p {
+    font-size: 0.95rem;
+    color: var(--slate-600);
+    line-height: 1.6;
+  }
+  /* PWA Offline Badge */
+  #status-indicator {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    padding: 10px 20px;
+    border-radius: 100px;
+    font-size: 0.75rem;
+    font-weight: 900;
+    text-transform: uppercase;
+    z-index: 1000;
+    display: none;
+    backdrop-filter: blur(10px);
+  }
+
+  .offline-badge {
+    background: #fee2e2;
+    color: #b91c1c;
+    border: 1px solid #fecdd3;
+    display: block !important;
+  }
+
+  /* Loader */
+  .loading-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(15, 23, 42, 0.95);
+    backdrop-filter: blur(10px);
+    z-index: 9999;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: white;
+  }
+
+  @media (max-width: 768px) {
+    .container {
+      padding: 30px 15px;
+    }
+    .upload-hub,
+    .result-hub {
+      padding: 30px 20px;
+    }
+    .diagnostic-hero {
+      padding: 40px 20px;
+    }
+  }
+  @keyframes spin {
+    0% {
+      transform: rotate(0deg);
+    }
+    100% {
+      transform: rotate(360deg);
+    }
+  }
+</style>
+
+<div id="status-indicator">Offline Mode Active</div>
+
+<div class="loading-overlay" id="loader">
+  <div
+    style="
+      width: 60px;
+      height: 60px;
+      border: 5px solid rgba(255, 255, 255, 0.1);
+      border-top: 5px solid var(--primary-light);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    "></div>
+  <h3 style="margin-top: 25px; font-weight: 900; letter-spacing: 0.05em">
+    ANALYZING RADIOGRAPH...
+  </h3>
+</div>
+
+<div class="container">
+  
+
+  <div class="nav-grid reveal">
+    <a href="{{ url_for('scan_predict') }}" class="nav-card">
+      <span class="icon">🦠</span> Predict Pneumonia
+    </a>
+    <a
+      href="{{ url_for('predict_asthma') }}"
+      class="nav-card"
+      style="border-color: var(--primary); background: var(--slate-50)">
+      <span class="icon">🫁</span> Predict Asthma
+    </a>
+    <a href="{{ url_for('predict_tb') }}" class="nav-card">
+      <span class="icon">🩻</span> Predict TB
+    </a>
+
+  </div>
+
+  {# 
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    {% for cat, msg in messages %}
+      <div style="background: #ecfdf5; color: #065f46; padding: 16px; border-radius: 14px; margin-bottom: 30px; text-align: center; font-size: 0.9rem; font-weight: 700; border: 1px solid #a7f3d0;">
+        ✓ {{ msg }}
+      </div>
+    {% endfor %}
+  {% endif %}
+{% endwith %}
+#}
+
+  <!-- Hero Section -->
+  <header class="diagnostic-hero reveal">
+    <div style="font-size: 3.5rem; margin-bottom: 15px">🩻</div>
+    <h1>Tuberculosis Detection</h1>
+    <p>
+      Upload a frontal chest X-ray to initiate deep learning protocols. Our
+      neural engine analyzes pixel-level patterns distinctive to pulmonary
+      Tuberculosis for rapid screening support.
+    </p>
+  </header>
+
+  <!-- Upload Section -->
+  <section class="upload-hub reveal">
+    <form
+      action="{{ url_for('predict_tb') }}"
+      method="post"
+      enctype="multipart/form-data"
+      id="tbForm">
+      <div class="dropzone" onclick="document.getElementById('file').click()">
+        <span style="font-size: 3rem; display: block; margin-bottom: 15px"
+          >📤</span
+        >
+        <div style="font-weight: 800; font-size: 1.2rem; color: var(--navy)">
+          Click to Upload Radiograph
+        </div>
+        <p style="color: var(--slate-400); margin-top: 8px">
+          Supports frontal CXR (.jpg, .png, .jpeg)
+        </p>
+
+        <input
+          type="file"
+          name="file"
+          id="file"
+          class="form-control"
+          accept="image/*"
+          required
+          style="display: none"
+          onchange="updateFileName(this)" />
+        <div
+          id="fileNameDisplay"
+          style="
+            margin-top: 15px;
+            font-weight: 700;
+            color: var(--primary);
+          "></div>
+      </div>
+
+      <button type="submit" class="btn-analyze">
+        Start Neural Analysis ⚡
+      </button>
+    </form>
+  </section>
+
+  <!-- Results Section -->
+  {% if result %}
+  <section class="result-hub reveal active">
+    <div
+      style="
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 20px;
+        border-bottom: 1px solid var(--slate-100);
+        padding-bottom: 30px;
+      ">
+      <h2 style="font-weight: 900; margin: 0">Diagnostic Verdict</h2>
+      <div
+        class="status-pill {{ 'status-positive' if 'tuberculosis' in result|lower else 'status-negative' }}">
+        {{ '⚠️' if 'tuberculosis' in result|lower else '✅' }} {{ result }}
+      </div>
+    </div>
+
+    <div class="metrics-grid">
+      <div class="metric-card">
+        <span class="metric-label">AI Confidence</span>
+        <span class="metric-value">{{ confidence }}%</span>
+      </div>
+      {% for label, prob in probabilities.items() %}
+      <div class="metric-card">
+        <span class="metric-label">{{ label }} Probability</span>
+        <span class="metric-value">{{ prob }}%</span>
+      </div>
+      {% endfor %}
+    </div>
+
+    <!-- Clinical Logic Description -->
+    <div class="info-block">
+      <h4>📝 Understanding the Output</h4>
+      <p>
+        <strong>Inference logic:</strong> The AI system has scanned the
+        interstitial spaces and pleural boundaries for patterns associated with
+        tuberculosis.
+      </p>
+      <p>
+        <strong>What this means:</strong> The <strong>Result</strong> indicates
+        the primary classification. <strong>Confidence</strong> represents the
+        model's inner statistical certainty, while
+        <strong>Probabilities</strong> show the comparative likelihood against
+        healthy tissue profiles.
+      </p>
+      <p
+        style="
+          font-style: italic;
+          font-weight: 600;
+          color: var(--slate-400);
+          margin-top: 15px;
+        ">
+        * This tool is a PWA-enabled screening assistant and must be verified by
+        clinical radiology assessment.
+      </p>
+    </div>
+  </section>
+  {% endif %}
+</div>
+
+<script>
+  // Show file name after selection
+  function updateFileName(input) {
+    const display = document.getElementById("fileNameDisplay");
+    if (input.files && input.files[0]) {
+      display.innerText = "Selected: " + input.files[0].name;
+    }
+  }
+
+  // Animation Observer
+  const observer = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) entry.target.classList.add("active");
+      });
+    },
+    { threshold: 0.1 },
+  );
+
+  document.querySelectorAll(".reveal").forEach((el) => observer.observe(el));
+
+  // Form Loader Control
+  document.getElementById("tbForm").onsubmit = function () {
+    document.getElementById("loader").style.display = "flex";
+  };
+
+  // PWA Offline cues
+  window.addEventListener("offline", () => {
+    document.body.style.filter = "grayscale(0.2)";
+  });
+  window.addEventListener("online", () => {
+    document.body.style.filter = "none";
+  });
+  // PWA & Offline Monitoring Logic
+  const indicator = document.getElementById("status-indicator");
+  const updateOnlineStatus = () => {
+    if (!navigator.onLine) {
+      indicator.classList.add("offline-badge");
+      indicator.innerText = "Offline Mode: Using Local Inference";
+    } else {
+      indicator.classList.remove("offline-badge");
+    }
+  };
+
+  window.addEventListener("offline", updateOnlineStatus);
+  window.addEventListener("online", updateOnlineStatus);
+  updateOnlineStatus();
+</script>
+{% endblock %}

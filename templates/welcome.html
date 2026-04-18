@@ -1,0 +1,517 @@
+{% extends "base.html" %} {% block title %}Welcome | PneumoScan Pro AI{%
+endblock %} {% block content %}
+<style>
+  :root {
+    --primary: #1976d2;
+    --primary-dark: #0d47a1;
+    --navy: #0a2540;
+    --slate-50: #f8fafc;
+    --slate-100: #f1f5f9;
+    --slate-200: #e2e8f0;
+    --slate-400: #94a3b8;
+    --slate-600: #475569;
+    --white: #ffffff;
+    --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+    --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+    --shadow-lg: 0 20px 25px -5px rgb(0 0 0 / 0.1);
+  }
+
+  body {
+    background-color: var(--white);
+    color: var(--navy);
+    font-family: "Inter", system-ui, -apple-system, sans-serif;
+    line-height: 1.6;
+    overflow-x: hidden;
+  }
+
+  /* Reveal Logic */
+  .reveal {
+    opacity: 1;
+    transform: translateY(30px);
+    transition: all 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+  .reveal.active {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .container {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 24px;
+  }
+
+  /* Section Spacing */
+  .v-space {
+    padding: 100px 0;
+  }
+
+  /* Hero Section */
+  .hero-simple {
+    padding: 120px 0 80px;
+    text-align: center;
+    background: radial-gradient(
+      circle at 50% 50%,
+      var(--slate-50) 0%,
+      white 100%
+    );
+  }
+
+  .hero-simple h1 {
+    font-size: clamp(2.5rem, 8vw, 4.5rem);
+    font-weight: 900;
+    letter-spacing: -0.05em;
+    line-height: 1.1;
+    margin-bottom: 24px;
+    color: var(--navy);
+  }
+
+  .hero-simple p {
+    font-size: 1.25rem;
+    color: var(--slate-600);
+    max-width: 650px;
+    margin: 0 auto 40px;
+  }
+
+  /* Buttons */
+  .btn-wrap {
+    display: flex;
+    gap: 16px;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+  .btn-main {
+    padding: 16px 36px;
+    border-radius: 12px;
+    font-weight: 700;
+    text-decoration: none;
+    transition: 0.3s;
+  }
+  .btn-filled {
+    background: var(--primary);
+    color: white;
+  }
+  .btn-filled:hover {
+    background: var(--primary-dark);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+  }
+  .btn-outline {
+    border: 2px solid var(--slate-200);
+    color: var(--navy);
+  }
+  .btn-outline:hover {
+    background: var(--slate-50);
+    border-color: var(--primary);
+  }
+
+  /* Stats Bar */
+  .stats-bar {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 40px;
+    padding: 60px 0;
+    border-top: 1px solid var(--slate-100);
+    border-bottom: 1px solid var(--slate-100);
+    text-align: center;
+  }
+  .stat-num {
+    font-size: 2.5rem;
+    font-weight: 900;
+    color: var(--primary);
+    display: block;
+  }
+  .stat-lab {
+    font-size: 0.8rem;
+    font-weight: 800;
+    color: var(--slate-400);
+    text-transform: uppercase;
+  }
+
+  /* Feature Grid */
+  .grid-3 {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 32px;
+    margin-top: 60px;
+  }
+  .feature-item {
+    padding: 40px;
+    border-radius: 24px;
+    background: var(--slate-50);
+    border: 1px solid transparent;
+    transition: 0.3s;
+  }
+  .feature-item:hover {
+    background: white;
+    border-color: var(--slate-200);
+    box-shadow: var(--shadow-lg);
+  }
+  .f-icon {
+    font-size: 2.5rem;
+    margin-bottom: 20px;
+    display: block;
+  }
+  .feature-item h3 {
+    font-size: 1.25rem;
+    font-weight: 800;
+    margin-bottom: 12px;
+  }
+
+  /* Testimonials */
+  .test-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 24px;
+    margin-top: 60px;
+  }
+  .test-box {
+    padding: 30px;
+    background: white;
+    border: 1px solid var(--slate-100);
+    border-radius: 20px;
+    font-size: 0.95rem;
+  }
+  .test-box p {
+    font-style: italic;
+    color: var(--slate-600);
+    margin-bottom: 15px;
+  }
+  .author {
+    font-weight: 800;
+    color: var(--primary);
+    font-size: 0.85rem;
+  }
+
+  /* FAQ */
+  .faq-list {
+    max-width: 800px;
+    margin: 60px auto 0;
+  }
+  details {
+    margin-bottom: 16px;
+    border-bottom: 1px solid var(--slate-100);
+  }
+  summary {
+    padding: 24px 0;
+    font-weight: 700;
+    cursor: pointer;
+    list-style: none;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 1.1rem;
+  }
+  summary::after {
+    content: "↓";
+    color: var(--primary);
+    font-weight: 900;
+  }
+  .answer {
+    padding-bottom: 24px;
+    color: var(--slate-600);
+    font-size: 1rem;
+  }
+
+  /* Offline Indicator */
+  .pwa-tag {
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
+    background: var(--navy);
+    color: white;
+    padding: 6px 14px;
+    border-radius: 50px;
+    font-size: 0.7rem;
+    font-weight: 800;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    box-shadow: var(--shadow-md);
+  }
+
+  /* Headings */
+  .tagline {
+    color: var(--primary);
+    font-weight: 800;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    display: block;
+    margin-bottom: 12px;
+  }
+  .title-l {
+    font-size: 2.8rem;
+    font-weight: 900;
+    letter-spacing: -0.03em;
+  }
+
+  @media (max-width: 768px) {
+    .v-space {
+      padding: 60px 0;
+    }
+    .title-l {
+      font-size: 2rem;
+    }
+    .hero-simple {
+      padding: 80px 0 40px;
+    }
+  }
+</style>
+
+<!-- PWA Status -->
+<div class="pwa-tag">
+  <span style="color: #4ade80">●</span> PWA OFFLINE MODE ACTIVE
+</div>
+
+<div class="container">
+  <!-- Hero Section -->
+  <header class="hero-simple reveal">
+    <span class="tagline">Next-Gen Radiological Assistant</span>
+    <h1>Smart Imaging. <br />Accurate Diagnosis.</h1>
+    <p>
+      Upload chest X-rays and leverage advanced AI to detect pneumonia types
+      with clinical precision and instant heatmap visualization.
+    </p>
+    <div class="btn-wrap">
+      <a href="/register" class="btn-main btn-filled">Get Started Free</a>
+      <a href="/login" class="btn-main btn-outline">Member Sign In</a>
+    </div>
+  </header>
+
+  <!-- Stats -->
+  <section class="stats-bar reveal">
+    <div>
+      <span class="stat-num">95.2%</span
+      ><span class="stat-lab">Model Accuracy</span>
+    </div>
+    <div>
+      <span class="stat-num">50k+</span
+      ><span class="stat-lab">Scans Analyzed</span>
+    </div>
+    <div>
+      <span class="stat-num">&lt;5s</span
+      ><span class="stat-lab">Processing Time</span>
+    </div>
+    <div>
+      <span class="stat-num">24/7</span
+      ><span class="stat-lab">PWA Availability</span>
+    </div>
+  </section>
+
+  <!-- Why Choose Us -->
+  <section class="v-space reveal">
+    <center>
+      <span class="tagline">The Application</span>
+      <h2 class="title-l">Why Choose PneumoScan Pro?</h2>
+    </center>
+    <div class="grid-3">
+      <div class="feature-item">
+        <span class="f-icon">🔬</span>
+        <h3>Deep Learning Engine</h3>
+        <p>
+          Built on a custom Convolutional Neural Network trained on global
+          radiological datasets for high-sensitivity detection.
+        </p>
+      </div>
+      <div class="feature-item">
+        <span class="f-icon">🗺️</span>
+        <h3>Grad-CAM Mapping</h3>
+        <p>
+          Don't just get a result; see exactly where the AI detects opacities
+          with visual probability heatmaps.
+        </p>
+      </div>
+      <div class="feature-item">
+        <span class="f-icon">📵</span>
+        <h3>True Offline Power</h3>
+        <p>
+          As a PWA, access your diagnostic history and recovery protocols even
+          in areas with zero connectivity.
+        </p>
+      </div>
+      <div class="feature-item">
+        <span class="f-icon">📄</span>
+        <h3>Automated Reports</h3>
+        <p>
+          Generate professional-grade PDF reports instantly, ready for physician
+          review or patient records.
+        </p>
+      </div>
+      <div class="feature-item">
+        <span class="f-icon">🔐</span>
+        <h3>Privacy First</h3>
+        <p>
+          End-to-end encryption ensures that sensitive patient data remains
+          confidential and secure.
+        </p>
+      </div>
+      <div class="feature-item">
+        <span class="f-icon">⚡</span>
+        <h3>Responsive Design</h3>
+        <p>
+          A seamless experience across mobile, tablet, and desktop for
+          clinicians on the move.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Testimonials (6) -->
+  <section class="v-space reveal">
+    <center>
+      <span class="tagline">Feedback</span>
+      <h2 class="title-l">Trusted by Professionals</h2>
+    </center>
+    <div class="test-grid">
+      <div class="test-box">
+        <p>
+          "The heatmap feature is a game-changer for explaining findings to
+          patients."
+        </p>
+        <span class="author">— Dr. James Miller</span>
+      </div>
+      <div class="test-box">
+        <p>
+          "Extremely fast. I get a second opinion from the AI in seconds during
+          my rounds."
+        </p>
+        <span class="author">— Nurse Maria G.</span>
+      </div>
+      <div class="test-box">
+        <p>
+          "The PWA capability is fantastic for our rural outreach programs."
+        </p>
+        <span class="author">— Health Officer Rahul K.</span>
+      </div>
+      <div class="test-box">
+        <p>"Cleanest medical UI I've ever used. Simple and effective."</p>
+        <span class="author">— Dr. Sarah Chen</span>
+      </div>
+      <div class="test-box">
+        <p>"A vital tool for preliminary screening in high-volume clinics."</p>
+        <span class="author">— Lab Director Tom H.</span>
+      </div>
+      <div class="test-box">
+        <p>
+          "Reliable, secure, and highly accurate. It has integrated perfectly
+          into our workflow."
+        </p>
+        <span class="author">— Clinician Anita R.</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ (10) -->
+  <section class="v-space reveal">
+    <center>
+      <span class="tagline">Knowledge Base</span>
+      <h2 class="title-l">Frequently Asked Questions</h2>
+    </center>
+    <div class="faq-list">
+      <details>
+        <summary>Is this a replacement for a radiologist?</summary>
+        <div class="answer">
+          No. PneumoScan is a decision-support tool. All AI predictions must be
+          verified by a board-certified professional.
+        </div>
+      </details>
+      <details>
+        <summary>What file types can I upload?</summary>
+        <div class="answer">
+          We support high-resolution JPG, PNG, and DICOM formats for scan
+          analysis.
+        </div>
+      </details>
+      <details>
+        <summary>Is my patient data stored safely?</summary>
+        <div class="answer">
+          Yes, we use many security parameters and follow strict radiological
+          privacy protocols.
+        </div>
+      </details>
+      <details>
+        <summary>How does the PWA / Offline mode work?</summary>
+        <div class="answer">
+          Once installed, essential app logic and your history are cached
+          locally, allowing access without internet.
+        </div>
+      </details>
+      <details>
+        <summary>What is the 'Heatmap' feature?</summary>
+        <div class="answer">
+          It uses Grad-CAM technology to visually highlight the specific areas
+          of the X-ray the AI used for its prediction.
+        </div>
+      </details>
+      <details>
+        <summary>How accurate is the detection?</summary>
+        <div class="answer">
+          Our current model achieves a 95.2% accuracy rate on validated clinical
+          test sets.
+        </div>
+      </details>
+      <details>
+        <summary>Can I download reports for printing?</summary>
+        <div class="answer">
+          Yes, every analysis generates a detailed PDF report formatted for A4
+          printing.
+        </div>
+      </details>
+      <details>
+        <summary>Is there a cost to use the platform?</summary>
+        <div class="answer">
+          We offer a free tier for basic analysis and clinic-wide integration.
+        </div>
+      </details>
+      <details>
+        <summary>Does it work on smartphones?</summary>
+        <div class="answer">
+          Absolutely. The app is fully responsive and optimized for both iOS and
+          Android browsers.
+        </div>
+      </details>
+      <details>
+        <summary>How do I register my clinic?</summary>
+        <div class="answer">
+          Simply click 'Get Started' and select the 'Clinical Account' option
+          during registration.
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <!-- Final CTA -->
+  <section
+    class="v-space reveal"
+    style="
+      text-align: center;
+      background: var(--slate-50);
+      border-radius: 40px;
+      margin-bottom: 100px;
+    ">
+    <h2 class="title-l">Ready for Smarter Diagnostics?</h2>
+    <p style="margin: 20px 0 40px; color: var(--slate-600)">
+      Join thousands of professionals using AI to improve patient outcomes.
+    </p>
+    <div class="btn-wrap">
+      <a href="/register" class="btn-main btn-filled">Create Your Account</a>
+    </div>
+  </section>
+</div>
+
+<script>
+  // Intersection Observer for Animations
+  const observer = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) entry.target.classList.add("active");
+      });
+    },
+    { threshold: 0.1 }
+  );
+
+  document.querySelectorAll(".reveal").forEach((el) => observer.observe(el));
+</script>
+{% endblock %}

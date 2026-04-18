@@ -1,0 +1,948 @@
+{% extends "base.html" %} {% block title %}Patient Portal | PneumoScan Pro{%
+endblock %} {% block content %}
+<style>
+  :root {
+    /* Color Palette - Navy Blue Professionalism */
+    --primary: #1e40af;
+    --primary-light: #3b82f6;
+    --primary-dark: #1e3a8a;
+    --navy: #0f172a;
+    --slate-50: #f8fafc;
+    --slate-100: #f1f5f9;
+    --slate-200: #e2e8f0;
+    --slate-400: #94a3b8;
+    --slate-600: #475569;
+    --white: #ffffff;
+
+    /* Spacing & Layout */
+    --section-gap: clamp(60px, 10vh, 100px);
+    --container-max: 1240px;
+    --radius-xl: 32px;
+    --radius-lg: 24px;
+
+    /* Shadows & Effects */
+    --shadow-soft: 0 10px 30px -5px rgba(15, 23, 42, 0.05);
+    --shadow-xl: 0 25px 50px -12px rgba(15, 23, 42, 0.15);
+    --transition: all 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+
+  body {
+    background: var(--slate-50);
+    background-image: radial-gradient(
+      at 100% 0%,
+      hsla(220, 75%, 50%, 0.03) 0,
+      transparent 40%
+    );
+    font-family: "Plus Jakarta Sans", system-ui, sans-serif;
+    color: var(--navy);
+    line-height: 1.6;
+    overflow-x: hidden;
+  }
+
+  .main-wrapper {
+    max-width: var(--container-max);
+    margin: 0 auto;
+    padding: 40px 24px 120px;
+    display: flex;
+    flex-direction: column;
+    gap: var(--section-gap);
+  }
+
+  /* Reveal Animations with improved transitions */
+  .reveal {
+    opacity: 0;
+    transform: translateY(40px) scale(0.98);
+    transition: var(--transition);
+    will-change: transform, opacity;
+  }
+  .reveal.active {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+
+  /* PWA Status Area */
+  .status-cluster {
+    display: flex;
+    justify-content: flex-start;
+    margin-bottom: -40px; /* Pulls hero closer for tighter visual hierarchy */
+  }
+
+  .pwa-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 24px;
+    background: var(--white);
+    border-radius: 100px;
+    font-size: 0.85rem;
+    font-weight: 800;
+    color: var(--primary);
+    box-shadow: var(--shadow-soft);
+    border: 1px solid var(--slate-100);
+  }
+
+  .pwa-badge .dot {
+    width: 10px;
+    height: 10px;
+    background: #10b981;
+    border-radius: 50%;
+    box-shadow: 0 0 12px #10b981;
+    animation: pwa-pulse 2s infinite;
+  }
+
+  @keyframes pwa-pulse {
+    0% {
+      opacity: 0.5;
+      transform: scale(0.8);
+    }
+    50% {
+      opacity: 1;
+      transform: scale(1.1);
+    }
+    100% {
+      opacity: 0.5;
+      transform: scale(0.8);
+    }
+  }
+
+  /* Hero Section - Fixed overlapping issues */
+  .hero-card {
+    background: var(--navy);
+    border-radius: var(--radius-xl);
+    padding: clamp(40px, 8vw, 80px);
+    color: white;
+    position: relative;
+    overflow: hidden;
+    box-shadow: var(--shadow-xl);
+    z-index: 1;
+  }
+
+  .hero-card::after {
+    content: "";
+    position: absolute;
+    width: 450px;
+    height: 450px;
+    background: var(--primary-light);
+    filter: blur(120px);
+    opacity: 0.15;
+    top: -150px;
+    right: -100px;
+    z-index: -1;
+  }
+
+  .hero-text h1 {
+    font-size: clamp(2.4rem, 6vw, 4.2rem);
+    font-weight: 950;
+    letter-spacing: -0.05em;
+    line-height: 1.05;
+    margin-bottom: 24px;
+  }
+
+  .hero-text p {
+    font-size: clamp(1.1rem, 2vw, 1.25rem);
+    max-width: 650px;
+    opacity: 0.85;
+    margin-bottom: 40px;
+    font-weight: 500;
+  }
+
+  .hero-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    background: var(--primary);
+    color: white;
+    padding: 20px 40px;
+    border-radius: 20px;
+    font-weight: 800;
+    text-decoration: none;
+    transition: 0.3s;
+  }
+  .hero-cta:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 15px 30px rgba(37, 99, 235, 0.4);
+  }
+  .grid-base .reveal:nth-child(1) {
+    transition-delay: 0.1s;
+  }
+  .grid-base .reveal:nth-child(2) {
+    transition-delay: 0.2s;
+  }
+  .grid-base .reveal:nth-child(3) {
+    transition-delay: 0.3s;
+  }
+  .grid-base .reveal:nth-child(4) {
+    transition-delay: 0.4s;
+  }
+
+  .btn-primary {
+    background: var(--primary-light);
+    color: white;
+    padding: 18px 40px;
+    border-radius: 20px;
+    font-weight: 800;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 14px;
+    transition: var(--transition);
+    box-shadow: 0 10px 25px rgba(59, 130, 246, 0.3);
+  }
+
+  .btn-primary:hover {
+    background: var(--white);
+    color: var(--navy);
+    transform: translateY(-5px);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+  }
+
+  /* Grid Layouts - Using grid-auto-rows for consistency */
+  .grid-base {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 24px;
+  }
+
+  /* Metrics Cards */
+  .metric-box {
+    background: var(--white);
+    padding: 35px;
+    border-radius: var(--radius-lg);
+    text-align: center;
+    border: 1px solid var(--slate-100);
+    box-shadow: var(--shadow-soft);
+    transition: var(--transition);
+  }
+
+  .metric-box:hover {
+    transform: translateY(-8px);
+    border-color: var(--primary-light);
+  }
+  .metric-val {
+    font-size: 2.5rem;
+    font-weight: 900;
+    color: var(--navy);
+    display: block;
+    margin-bottom: 4px;
+  }
+  .metric-label {
+    font-size: 0.8rem;
+    font-weight: 800;
+    color: var(--slate-400);
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+  }
+
+  /* Section Headers - Uniform Spacing */
+  .section-header {
+    margin-bottom: 32px;
+    max-width: 700px;
+  }
+  .section-header h2 {
+    font-size: clamp(1.8rem, 4vw, 2.4rem);
+    font-weight: 950;
+    color: var(--navy);
+    margin-bottom: 8px;
+    letter-spacing: -0.03em;
+  }
+  .section-header p {
+    color: var(--slate-600);
+    font-weight: 500;
+  }
+
+  /* Diagnostic Suite Cards */
+  .suite-card {
+    background: var(--white);
+    padding: 40px;
+    border-radius: var(--radius-xl);
+    text-decoration: none;
+    color: inherit;
+    border: 1px solid var(--slate-100);
+    box-shadow: var(--shadow-soft);
+    transition: var(--transition);
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .suite-card:hover {
+    transform: translateY(-12px);
+    border-color: var(--primary);
+    box-shadow: var(--shadow-xl);
+  }
+
+  .suite-card i {
+    font-size: 3rem;
+    margin-bottom: 24px;
+    color: var(--primary);
+    display: block;
+    transition: transform 0.3s ease;
+  }
+
+  .suite-card:hover i {
+    transform: scale(1.1);
+  }
+  .suite-card h3 {
+    font-size: 1.55rem;
+    font-weight: 900;
+    margin-bottom: 12px;
+    transition: color 0.3s;
+  }
+  .suite-card:hover h3 {
+    color: var(--primary);
+  }
+  .suite-card p {
+    font-size: 1rem;
+    color: var(--slate-600);
+    flex-grow: 1;
+    line-height: 1.7;
+  }
+
+  /* Detail Cards (Multi-Disease Matrix) */
+  .details-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+    gap: 32px;
+  }
+
+  .detail-card {
+    background: var(--white);
+    padding: 40px;
+    border-radius: var(--radius-xl);
+    border-left: 6px solid var(--primary);
+    box-shadow: var(--shadow-soft);
+    transition: var(--transition);
+  }
+  .detail-card:hover {
+    transform: translateX(8px);
+    background: #fafbff;
+  }
+
+  .detail-card h4 {
+    font-size: 1.35rem;
+    font-weight: 900;
+    color: var(--primary);
+    margin-bottom: 15px;
+  }
+  .detail-card p {
+    font-size: 1rem;
+    color: var(--slate-600);
+  }
+
+  /* Info Highlight - Responsive Grid Adjustments */
+  .info-highlight {
+    background: var(--navy);
+    border-radius: var(--radius-xl);
+    padding: clamp(32px, 6vw, 64px);
+    color: white;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 48px;
+    align-items: center;
+    box-shadow: var(--shadow-xl);
+  }
+
+  .info-list {
+    list-style: none;
+    padding: 0;
+    margin-top: 24px;
+  }
+  .info-list li {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 16px;
+    font-weight: 700;
+    font-size: 1.1rem;
+  }
+  .check-icon {
+    width: 26px;
+    height: 26px;
+    background: var(--primary-light);
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.85rem;
+    flex-shrink: 0;
+  }
+
+  /* Steps Workflow - Fixed padding/spacing */
+  .steps-flex-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 32px;
+  }
+
+  .step-card {
+    background: white;
+    padding: 40px 32px;
+    border-radius: var(--radius-lg);
+    text-align: center;
+    box-shadow: var(--shadow-soft);
+    border: 1px solid var(--slate-100);
+    transition: var(--transition);
+  }
+
+  .step-card:hover {
+    border-color: var(--primary-light);
+    transform: translateY(-5px);
+  }
+  .step-num {
+    width: 64px;
+    height: 64px;
+    background: var(--navy);
+    color: white;
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 24px;
+    font-weight: 950;
+    font-size: 1.4rem;
+    box-shadow: 0 8px 16px rgba(15, 23, 42, 0.1);
+  }
+
+  /* Content Boxes - Used for Banner & FAQ */
+  .content-box {
+    background: white;
+    padding: clamp(32px, 8vw, 64px);
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-soft);
+    position: relative;
+    overflow: hidden;
+  }
+  .faq-stack {
+    max-width: 900px;
+    margin: 0 auto 80px;
+  }
+  details {
+    background: white;
+    margin-bottom: 15px;
+    border-radius: 20px;
+    box-shadow: var(--shadow-soft);
+    overflow: hidden;
+  }
+  summary {
+    padding: 25px 30px;
+    font-weight: 800;
+    cursor: pointer;
+    list-style: none;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  summary::after {
+    content: "+";
+    font-size: 1.5rem;
+    color: var(--primary);
+  }
+  details[open] summary::after {
+    content: "−";
+  }
+  .faq-body {
+    padding: 0 30px 30px;
+    color: var(--text-muted);
+    line-height: 1.7;
+  }
+
+  /* Testimonials Grid */
+  .testimonial-card {
+    background: white;
+    padding: 48px;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-soft);
+    position: relative;
+    height: 100%;
+  }
+
+  .quote-icon {
+    font-size: 5rem;
+    color: var(--slate-100);
+    position: absolute;
+    top: 12px;
+    right: 24px;
+    user-select: none;
+  }
+
+  /* Responsive Fixes - Ultra Smooth Viewport Transitions */
+  @media (max-width: 1080px) {
+    .main-wrapper {
+      padding: 32px 20px;
+      gap: 80px;
+    }
+    .details-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .main-wrapper {
+      gap: 60px;
+    }
+    .hero-card {
+      padding: 48px 32px;
+      text-align: center;
+    }
+    .hero-text p {
+      margin-inline: auto;
+    }
+    .btn-primary {
+      width: 100%;
+      justify-content: center;
+    }
+    .info-highlight {
+      padding: 40px 24px;
+      text-align: center;
+    }
+    .info-list li {
+      justify-content: center;
+    }
+    .step-card {
+      padding: 32px 20px;
+    }
+  }
+</style>
+
+<div class="main-wrapper">
+  <!-- Diagnostic Environment Status -->
+  <div class="status-cluster reveal">
+    <div class="pwa-badge">
+      <div class="dot"></div>
+      Multi-Disease Engine Hybrid-Sync Active
+    </div>
+  </div>
+
+  <!-- Hero Intelligence Center -->
+  <section class="hero-card reveal">
+    <div class="hero-text">
+      <h1>
+        Hello, Patient. <br /><span style="color: var(--primary-light)"
+          >Your Health, Elevated.</span
+        >
+      </h1>
+      <p>
+        Access precision AI diagnostics, manage medical records, and track your
+        recovery journey in one secure clinical environment.
+      </p>
+      <a href="{{ url_for('scan_predict') }}" class="hero-cta">
+        Start New Analysis <span>→</span>
+      </a>
+    </div>
+    <div class="hero-visual">
+      <!-- Visual element or badge could go here -->
+    </div>
+  </section>
+  <!-- Performance Statistics -->
+  <div class="grid-base reveal">
+    <div class="metric-box">
+      <span class="metric-val">3</span>
+      <span class="metric-label">Disease Models</span>
+    </div>
+    <div class="metric-box" style="transition-delay: 0.1s">
+      <span class="metric-val">99%</span>
+      <span class="metric-label">PWA Uptime</span>
+    </div>
+    <div class="metric-box" style="transition-delay: 0.2s">
+      <span class="metric-val">secure</span>
+      <span class="metric-label">Vault Encryption</span>
+    </div>
+    <div class="metric-box" style="transition-delay: 0.3s">
+      <span class="metric-val">Sub-Sec</span>
+      <span class="metric-label">Inference Speed</span>
+    </div>
+  </div>
+
+  <!-- Intelligence Hub -->
+  <section>
+    <div class="section-header reveal">
+      <h2>Intelligence Suite</h2>
+      <p>
+        Seamlessly transition between specialized respiratory screening
+        protocols.
+      </p>
+    </div>
+    <div class="grid-base" style="gap: 32px">
+      <a href="{{ url_for('predict_tb') }}" class="suite-card reveal">
+        <i>🩻</i>
+        <h3>Tuberculosis</h3>
+        <p>
+          Advanced screening for pulmonary TB using pixel-level texture mapping
+          and volumetric boundary analysis.
+        </p>
+      </a>
+      <a
+        href="{{ url_for('predict_asthma') }}"
+        class="suite-card reveal"
+        style="transition-delay: 0.2s">
+        <i>🫁</i>
+        <h3>Asthma Predictive</h3>
+        <p>
+          Multi-variant risk assessment integrating environmental pollution
+          trends and personal clinical history.
+        </p>
+      </a>
+      <a
+        href="{{ url_for('scan_predict') }}"
+        class="suite-card reveal"
+        style="transition-delay: 0.3s">
+        <i>🦠</i>
+        <h3>Pneumonia Det.</h3>
+        <p>
+          Bacterial vs. viral pathology detection with real-time heatmap
+          localization on frontal radiographs.
+        </p>
+      </a>
+    </div>
+  </section>
+
+  <!-- User Archive Section -->
+  <section>
+    <div class="section-header reveal">
+      <h2>Clinical Archive</h2>
+      <p>
+        Access your medical history and AI-generated radiological summaries.
+      </p>
+    </div>
+    <div class="grid-base" style="gap: 32px">
+      <a href="{{ url_for('history') }}" class="suite-card reveal">
+        <i>📜</i>
+        <h3>Past Analytics</h3>
+        <p>
+          Instant access to previous scan logs, historical trends, and secured
+          cloud reports.
+        </p>
+      </a>
+      <a
+        href="{{ url_for('prevention') }}"
+        class="suite-card reveal"
+        style="transition-delay: 0.1s">
+        <i>💡</i>
+        <h3>Care Guidance</h3>
+        <p>
+          Clinical procedures for recovery and customized prevention strategies
+          based on diagnostic results.
+        </p>
+      </a>
+    </div>
+  </section>
+
+  <!-- Analysis Matrix Information -->
+  <section>
+    <div class="section-header reveal">
+      <h2>Multi-Disease Matrix</h2>
+      <p>
+        Specialized logic frameworks applied across our respiratory neural
+        network.
+      </p>
+    </div>
+    <div class="details-grid">
+      <div class="detail-card reveal">
+        <h4>Pneumonia Detection Matrix</h4>
+        <p>
+          Our model utilizes state-of-the-art CNN architectures to differentiate
+          between viral and bacterial infections, generating activity maps that
+          precisely highlight focal lung field opacities.
+        </p>
+      </div>
+      <div class="detail-card reveal" style="transition-delay: 0.1s">
+        <h4>Tuberculosis Screening</h4>
+        <p>
+          By identifying cavitation and apical scarring patterns, the AI
+          platform provides a high-probability screening index optimized for
+          high-risk demographic data sets.
+        </p>
+      </div>
+      <div class="detail-card reveal" style="transition-delay: 0.1s">
+        <h4>Asthma Predictive Logic</h4>
+        <p>
+          Our Asthma analysis engine calculates baseline bronchial risk by
+          correlating environmental AQI data, hereditary history, and
+          personalized physiological vitals.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Offline & Sync Highlights -->
+  <section class="info-highlight reveal">
+    <div>
+      <h2
+        style="
+          font-size: 2.4rem;
+          font-weight: 950;
+          margin-bottom: 24px;
+          line-height: 1.1;
+        ">
+        Edge Intelligence <br />& Offline Core.
+      </h2>
+      <p style="opacity: 0.85; font-size: 1.1rem; margin-bottom: 32px">
+        Advanced PWA architecture ensures that your critical diagnostic tools
+        remain fully operational in environments with zero connectivity.
+      </p>
+      <ul class="info-list">
+        <li>
+          <div class="check-icon">✓</div>
+          Real-time report caching
+        </li>
+        <li>
+          <div class="check-icon">✓</div>
+          Sub-second edge inference
+        </li>
+        <li>
+          <div class="check-icon">✓</div>
+          AES-256 local encrypted storage
+        </li>
+      </ul>
+    </div>
+    <div
+      style="
+        background: rgba(255, 255, 255, 0.06);
+        padding: 48px;
+        border-radius: 32px;
+        backdrop-filter: blur(12px);
+        border: 1px solid rgba(255, 255, 255, 0.12);
+      ">
+      <h4 style="margin-bottom: 20px; font-weight: 800; font-size: 1.2rem">
+        Neural Network Evolution
+      </h4>
+      <div style="font-size: 0.95rem; opacity: 0.85; line-height: 1.8">
+        PneumoScan Pro utilizes customized CNN layers trained on over 500,000
+        verified radiological samples. The integrated multi-disease matrix
+        ensures a consistent unified view across all pulmonary pathologies.
+      </div>
+    </div>
+  </section>
+
+  <!-- Operational Roadmap -->
+  <section>
+    <div
+      class="section-header reveal"
+      style="text-align: center; margin-inline: auto">
+      <h2>System Workflow</h2>
+    </div>
+    <div class="steps-flex-container reveal">
+      <div class="step-card">
+        <div class="step-num">01</div>
+        <h4 style="font-weight: 900; margin-bottom: 12px; color: var(--navy)">
+          Clinical Intake
+        </h4>
+        <p style="font-size: 0.9rem; color: var(--slate-600)">
+          Provide current symptoms and personal medical baseline.
+        </p>
+      </div>
+      <div class="step-card">
+        <div class="step-num">02</div>
+        <h4 style="font-weight: 900; margin-bottom: 12px; color: var(--navy)">
+          Radiology Upload
+        </h4>
+        <p style="font-size: 0.9rem; color: var(--slate-600)">
+          Transfer frontal CXR or CT scan slices to the secure buffer.
+        </p>
+      </div>
+      <div class="step-card">
+        <div class="step-num">03</div>
+        <h4 style="font-weight: 900; margin-bottom: 12px; color: var(--navy)">
+          Neural Mapping
+        </h4>
+        <p style="font-size: 0.9rem; color: var(--slate-600)">
+          AI analyzer scans for pathological radiological signatures.
+        </p>
+      </div>
+      <div class="step-card">
+        <div class="step-num">04</div>
+        <h4 style="font-weight: 900; margin-bottom: 12px; color: var(--navy)">
+          Final Prognosis
+        </h4>
+        <p style="font-size: 0.9rem; color: var(--slate-600)">
+          Receive localized heatmaps and encrypted PDF reporting.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Feature Pillar Block -->
+  <div
+    class="content-box reveal"
+    style="
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 48px;
+    ">
+    <div>
+      <h2
+        style="
+          font-size: 2.4rem;
+          font-weight: 950;
+          margin-bottom: 20px;
+          color: var(--navy);
+          line-height: 1.1;
+        ">
+        Precision Engineering. <br /><span style="color: var(--primary-light)"
+          >Data Privacy First.</span
+        >
+      </h2>
+      <p style="color: var(--slate-600); font-size: 1.05rem">
+        PneumoScan Pro is built on HIPAA-aligned data processing standards using
+        specialized kernels designed by leading radiological researchers.
+      </p>
+    </div>
+    <div
+      style="
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 24px;
+        align-content: center;
+      ">
+      <div
+        style="display: flex; gap: 12px; align-items: center; font-weight: 800">
+        <span style="color: var(--primary-light); font-size: 1.4rem">•</span>
+        Ultra-Fast
+      </div>
+      <div
+        style="display: flex; gap: 12px; align-items: center; font-weight: 800">
+        <span style="color: var(--primary-light); font-size: 1.4rem">•</span>
+        SECURED
+      </div>
+      <div
+        style="display: flex; gap: 12px; align-items: center; font-weight: 800">
+        <span style="color: var(--primary-light); font-size: 1.4rem">•</span>
+        OFFLINE
+      </div>
+      <div
+        style="display: flex; gap: 12px; align-items: center; font-weight: 800">
+        <span style="color: var(--primary-light); font-size: 1.4rem">•</span> AI
+        Pro
+      </div>
+    </div>
+  </div>
+
+  <!-- FAQ Knowledge Base -->
+  <section class="faq-wrapper reveal">
+    <div class="section-header" style="text-align: center; margin-inline: auto">
+      <h2>Patient Knowledge Hub</h2>
+    </div>
+    <details>
+      <summary>Is this a definitive medical diagnosis?</summary>
+      <div class="faq-content">
+        No. PneumoScan Pro is a Clinical Decision Support System. AI-generated
+        inferences must always be validated by a board-certified physician or
+        specialized radiologist.
+      </div>
+    </details>
+    <details>
+      <summary>How is my radiology data secured?</summary>
+      <div class="faq-content">
+        We utilize end-to-end TLS 1.3 encryption for data in transit and AES-256
+        bit encryption for storage. Session buffers are cleared automatically
+        after inference processing is complete.
+      </div>
+    </details>
+    <details>
+      <summary>Can I download my results for external consultation?</summary>
+      <div class="faq-content">
+        Yes. Every successful diagnostic session generates a clinical-standard
+        PDF report containing probability maps, confidence scores, and raw
+        metadata for physician review.
+      </div>
+    </details>
+  </section>
+
+  <!-- Clinical Peer Testimonials -->
+  <section class="grid-base reveal">
+    <div class="testimonial-card">
+      <div class="quote-icon">“</div>
+      <p
+        style="
+          font-style: italic;
+          color: var(--navy);
+          font-size: 1.1rem;
+          line-height: 1.8;
+          margin-bottom: 24px;
+        ">
+        "The diagnostic detail and sub-second inference speed provided me with
+        critical insight during my early screening phase."
+      </p>
+      <p
+        style="
+          font-weight: 900;
+          color: var(--primary);
+          text-transform: uppercase;
+          font-size: 0.85rem;
+          letter-spacing: 0.1em;
+        ">
+        — Patient Sarah J.
+      </p>
+    </div>
+    <div class="testimonial-card" style="transition-delay: 0.1s">
+      <div class="quote-icon">“</div>
+      <p
+        style="
+          font-style: italic;
+          color: var(--navy);
+          font-size: 1.1rem;
+          line-height: 1.8;
+          margin-bottom: 24px;
+        ">
+        "A highly intuitive interface that bridges the gap between complex AI
+        radiology and patient-accessible wellness management."
+      </p>
+      <p
+        style="
+          font-weight: 900;
+          color: var(--primary);
+          text-transform: uppercase;
+          font-size: 0.85rem;
+          letter-spacing: 0.1em;
+        ">
+        — Michael R., Health Adv.
+      </p>
+    </div>
+  </section>
+</div>
+
+<script>
+  // Advanced Scroll Observer with Throttling
+  const scrollObserver = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add("active");
+        }
+      });
+    },
+    {
+      threshold: 0.1,
+      rootMargin: "0px 0px -60px 0px",
+    },
+  );
+
+  document
+    .querySelectorAll(".reveal")
+    .forEach((el) => scrollObserver.observe(el));
+
+  // Handle Dynamic Online/Offline status
+  const updateClinicalStatus = () => {
+    const badge = document.querySelector(".pwa-badge");
+    const dot = badge.querySelector(".dot");
+    if (navigator.onLine) {
+      dot.style.background = "#10b981";
+      dot.style.boxShadow = "0 0 12px #10b981";
+      badge.lastChild.textContent = " Multi-Disease Engine Hybrid-Sync Active";
+    } else {
+      dot.style.background = "#f59e0b";
+      dot.style.boxShadow = "0 0 12px #f59e0b";
+      badge.lastChild.textContent = " Offline Priority Mode: Active";
+    }
+  };
+
+  window.addEventListener("online", updateClinicalStatus);
+  window.addEventListener("offline", updateClinicalStatus);
+
+  // Execution on Load
+  document.addEventListener("DOMContentLoaded", updateClinicalStatus);
+</script>
+{% endblock %}

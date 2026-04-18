@@ -1,0 +1,427 @@
+{% extends "base.html" %} {% block title %}Register | PneumoScan Pro AI{%
+endblock %} {% block content %}
+<style>
+  :root {
+    --primary: #1976d2;
+    --primary-dark: #0d47a1;
+    --navy: #0a2540;
+    --slate-50: #f8fafc;
+    --slate-100: #f1f5f9;
+    --slate-200: #e2e8f0;
+    --slate-400: #94a3b8;
+    --slate-600: #475569;
+    --white: #ffffff;
+    --shadow-soft:
+      0 20px 25px -5px rgba(0, 0, 0, 0.05), 0 10px 10px -5px rgba(0, 0, 0, 0.02);
+  }
+
+  body {
+    background: var(--slate-50);
+    background-image: radial-gradient(
+      circle at top right,
+      var(--slate-100),
+      var(--white)
+    );
+    font-family:
+      "Inter",
+      system-ui,
+      -apple-system,
+      sans-serif;
+    min-height: 100vh;
+  }
+
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px 24px 80px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* Reveal Logic (Matching Dashboards) */
+  .reveal {
+    opacity: 1;
+    transform: translateY(30px);
+    transition: all 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+  .reveal.active {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* PWA Status Badge */
+  .pwa-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    background: var(--white);
+    border-radius: 100px;
+    font-size: 0.75rem;
+    font-weight: 800;
+    color: var(--primary);
+    box-shadow: var(--shadow-soft);
+    margin-bottom: 32px;
+    border: 1px solid var(--slate-200);
+  }
+
+  /* Register Card - Matching Dashboard/Login geometry */
+  .register-card {
+    background: var(--white);
+    width: 100%;
+    max-width: 550px;
+    padding: 50px;
+    border-radius: 40px;
+    box-shadow: var(--shadow-soft);
+    border: 1px solid var(--slate-100);
+  }
+
+  .tagline {
+    color: var(--primary);
+    font-weight: 800;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    display: block;
+    margin-bottom: 12px;
+    text-align: center;
+  }
+
+  .register-card h1 {
+    font-size: 2.2rem;
+    font-weight: 900;
+    color: var(--navy);
+    margin-bottom: 12px;
+    text-align: center;
+    letter-spacing: -0.03em;
+  }
+
+  .subtitle {
+    text-align: center;
+    color: var(--slate-600);
+    font-size: 0.95rem;
+    margin-bottom: 40px;
+    line-height: 1.5;
+  }
+
+  /* Form Elements */
+  .form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+  }
+
+  .form-group {
+    margin-bottom: 24px;
+    position: relative;
+  }
+  .full-width {
+    grid-column: span 2;
+  }
+
+  label {
+    display: block;
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--slate-600);
+    margin-bottom: 8px;
+    margin-left: 4px;
+  }
+
+  .input-field,
+  select {
+    width: 100%;
+    padding: 16px;
+    border-radius: 16px;
+    border: 1.5px solid var(--slate-200);
+    background: var(--slate-50);
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    box-sizing: border-box;
+    font-family: inherit;
+  }
+
+  .input-field:focus,
+  select:focus {
+    outline: none;
+    border-color: var(--primary);
+    background: var(--white);
+    box-shadow: 0 0 0 4px rgba(25, 118, 210, 0.1);
+  }
+
+  /* Password Toggle & Strength */
+  .password-wrapper {
+    position: relative;
+  }
+  .toggle-icon {
+    position: absolute;
+    right: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    font-size: 1.2rem;
+    color: var(--slate-400);
+  }
+
+  .strength-container {
+    margin-top: 10px;
+    display: flex;
+    gap: 4px;
+  }
+  .strength-segment {
+    height: 4px;
+    flex: 1;
+    background: var(--slate-200);
+    border-radius: 10px;
+    transition: 0.4s;
+  }
+
+  /* Captcha & Submit */
+  .captcha-container {
+    background: var(--slate-50);
+    padding: 15px;
+    border-radius: 20px;
+    margin: 20px 0;
+    display: flex;
+    justify-content: center;
+    border: 1px solid var(--slate-100);
+  }
+
+  .btn-register {
+    width: 100%;
+    background: var(--navy);
+    color: var(--white);
+    padding: 18px;
+    border-radius: 18px;
+    border: none;
+    font-weight: 800;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.3s;
+    box-shadow: 0 10px 20px rgba(10, 37, 64, 0.1);
+  }
+
+  .btn-register:hover {
+    background: var(--primary);
+    transform: translateY(-2px);
+    box-shadow: 0 15px 30px rgba(25, 118, 210, 0.2);
+  }
+
+  .footer-links {
+    text-align: center;
+    margin-top: 32px;
+    font-size: 0.95rem;
+    color: var(--slate-600);
+  }
+
+  .footer-links a {
+    color: var(--primary);
+    font-weight: 800;
+    text-decoration: none;
+  }
+
+  /* Responsive Adjustments */
+  @media (max-width: 650px) {
+    .form-grid {
+      grid-template-columns: 1fr;
+    }
+    .full-width {
+      grid-column: span 1;
+    }
+    .register-card {
+      padding: 35px 20px;
+      border-radius: 30px;
+    }
+  }
+</style>
+
+<div class="container">
+  {% with messages = get_flashed_messages(with_categories=true) %} {% if
+  messages %} {% for category, message in messages %}
+  <div
+    class="alert alert-{{ 'danger' if category == 'danger' else 'success' if category == 'success' else 'warning' }} alert-dismissible fade show"
+    role="alert">
+    {{ message }}
+    <button
+      type="button"
+      class="btn-close"
+      data-bs-dismiss="alert"
+      aria-label="Close"></button>
+  </div>
+  {% endfor %} {% endif %} {% endwith %} {% if error %}
+  <div
+    style="
+      background: #fee2e2;
+      color: #b91c1c;
+      padding: 12px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      text-align: center;
+    ">
+    {{ error }}
+  </div>
+  {% endif %}
+
+  <!-- PWA Status -->
+  <div class="pwa-status reveal">
+    <span id="conn-dot" style="color: #10b981">●</span>
+    <span id="conn-text">Secured Registration Node</span>
+  </div>
+
+  <div class="register-card reveal">
+    <span class="tagline">Join PneumoScan Pro</span>
+    <h1>Create Account</h1>
+    <p class="subtitle">
+      Access AI-driven radiological insights and unified patient records.
+    </p>
+
+    <form method="POST">
+      <div class="form-grid">
+        <div class="form-group">
+          <label for="username">Professional Username</label>
+          <input
+            id="username"
+            name="username"
+            class="input-field"
+            type="text"
+            placeholder="e.g. jdoe_md"
+            autocomplete="username"
+            required />
+        </div>
+
+        <div class="form-group">
+          <label for="email">Clinical Email</label>
+          <input
+            id="email"
+            name="email"
+            class="input-field"
+            type="email"
+            autocomplete="username"
+            placeholder="name@clinic.com"
+            required />
+        </div>
+
+        <div class="form-group">
+          <label for="password">Password</label>
+          <div class="password-wrapper">
+            <input
+              id="password"
+              name="password"
+              class="input-field"
+              type="password"
+              autocomplete="new-password"
+              placeholder="••••••••"
+              required
+              oninput="checkStrength(this.value)" />
+            <span class="toggle-icon" onclick="togglePassword()">👁️</span>
+          </div>
+          <div class="strength-container">
+            <div class="strength-segment" id="s1"></div>
+            <div class="strength-segment" id="s2"></div>
+            <div class="strength-segment" id="s3"></div>
+            <div class="strength-segment" id="s4"></div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="confirm_password">Confirm Password</label>
+          <input
+            id="confirm_password"
+            name="confirm_password"
+            class="input-field"
+            type="password"
+            autocomplete="new-password"
+            placeholder="••••••••"
+            required />
+        </div>
+
+        <div class="form-group full-width">
+          <label for="role">Institutional Role</label>
+          <select id="role" name="role" required>
+            <option value="" disabled selected hidden>
+              Select your professional capacity
+            </option>
+            <option value="patient">Patient / User</option>
+            <option value="doctor">Medical Professional</option>
+            <option value="admin">System Administrator</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- reCAPTCHA Widget Maintained -->
+      <div class="captcha-container">
+        <div
+          class="g-recaptcha"
+          data-sitekey="{{ config['RECAPTCHA_SITE_KEY'] }}"></div>
+      </div>
+
+      <button type="submit" class="btn-register">
+        Register Account &rarr;
+      </button>
+    </form>
+
+    <div class="footer-links">
+      Already registered? <a href="/login">Sign In Here</a>
+    </div>
+  </div>
+</div>
+
+<script src="https://www.google.com/recaptcha/api.js" async defer></script>
+<script>
+  // Animation Observer
+  const observer = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) entry.target.classList.add("active");
+      });
+    },
+    { threshold: 0.1 },
+  );
+  document.querySelectorAll(".reveal").forEach((el) => observer.observe(el));
+
+  // Toggle Password
+  function togglePassword() {
+    const pwd = document.getElementById("password");
+    pwd.type = pwd.type === "password" ? "text" : "password";
+  }
+
+  // Modern Strength Meter
+  function checkStrength(password) {
+    let strength = 0;
+    if (password.length >= 8) strength++;
+    if (/[A-Z]/.test(password)) strength++;
+    if (/[0-9]/.test(password)) strength++;
+    if (/[^A-Za-z0-9]/.test(password)) strength++;
+
+    const segments = ["s1", "s2", "s3", "s4"];
+    const colors = ["#f44336", "#fbbf24", "#3b82f6", "#10b981"];
+
+    segments.forEach((seg, i) => {
+      const el = document.getElementById(seg);
+      if (i < strength) {
+        el.style.background = colors[strength - 1];
+      } else {
+        el.style.background = "var(--slate-200)";
+      }
+    });
+  }
+
+  // Connectivity Sync
+  function updateConn() {
+    const dot = document.getElementById("conn-dot");
+    const text = document.getElementById("conn-text");
+    if (navigator.onLine) {
+      dot.style.color = "#10b981";
+      text.innerText = "Secured Registration Node";
+    } else {
+      dot.style.color = "#ef4444";
+      text.innerText = "PWA Offline Mode";
+    }
+  }
+  window.addEventListener("online", updateConn);
+  window.addEventListener("offline", updateConn);
+  updateConn();
+</script>
+{% endblock %}

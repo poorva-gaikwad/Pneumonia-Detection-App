@@ -1,0 +1,483 @@
+{% extends "base.html" %} {% block title %}Patient Clinical Intake | PneumoScan
+Pro{% endblock %} {% block content %}
+<style>
+  :root {
+    --primary: #4f46e5;
+    --primary-dark: #3730a3;
+    --secondary: #0ea5e9;
+    --accent: #f59e0b;
+    --navy: #0f172a;
+    --slate-50: #f8fafc;
+    --slate-100: #f1f5f9;
+    --slate-200: #e2e8f0;
+    --slate-400: #94a3b8;
+    --slate-600: #475569;
+    --slate-800: #1e293b;
+    --white: #ffffff;
+    --glass: rgba(255, 255, 255, 0.9);
+    --shadow-xl: 0 25px 50px -12px rgba(0, 0, 0, 0.1);
+  }
+
+  body {
+    background-color: var(--slate-50);
+    background-image:
+      radial-gradient(at 0% 0%, hsla(243, 75%, 59%, 0.05) 0, transparent 40%),
+      radial-gradient(
+        at 100% 100%,
+        hsla(202, 80%, 50%, 0.05) 0,
+        transparent 40%
+      );
+    color: var(--navy);
+    font-family:
+      "Plus Jakarta Sans",
+      system-ui,
+      -apple-system,
+      sans-serif;
+    line-height: 1.6;
+    overflow-x: hidden;
+  }
+
+  .form-container {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 100px 24px; /* Significant top/bottom breathing room */
+  }
+
+  /* Reveal Animation */
+  .reveal {
+    opacity: 1;
+    transform: translateY(30px);
+    transition: all 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+  .reveal.active {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* Header Design */
+  .form-header {
+    text-align: center;
+    margin-bottom: 80px; /* Large margin below header */
+  }
+
+  .form-header h1 {
+    font-size: clamp(2rem, 5vw, 3.2rem);
+    font-weight: 900;
+    letter-spacing: -0.05em;
+    margin-bottom: 20px;
+    color: var(--navy);
+  }
+
+  .status-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    background: var(--white);
+    border: 1px solid var(--slate-200);
+    border-radius: 100px;
+    font-size: 0.85rem;
+    font-weight: 800;
+    color: var(--primary);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+    margin-bottom: 30px;
+  }
+
+  /* Form Section Blocks */
+  .form-card {
+    background: var(--white);
+    padding: 60px; /* Increased internal padding */
+    border-radius: 40px;
+    box-shadow: var(--shadow-xl);
+    border: 1px solid var(--slate-100);
+    margin-bottom: 60px; /* Significant margin between cards */
+    position: relative;
+    transition: transform 0.3s ease;
+  }
+
+  .form-card:hover {
+    transform: translateY(-5px);
+  }
+
+  .form-card h2 {
+    font-size: 1.5rem;
+    font-weight: 800;
+    margin-bottom: 40px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    color: var(--navy);
+  }
+
+  .section-icon {
+    width: 48px;
+    height: 48px;
+    background: var(--slate-50);
+    color: var(--primary);
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+  }
+
+  /* Layout Grids */
+  .grid-layout {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 40px; /* Large gap between fields */
+  }
+
+  .field {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .full-width {
+    grid-column: span 2;
+  }
+
+  label {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--slate-800);
+    padding-left: 4px;
+  }
+
+  input[type="text"],
+  input[type="number"],
+  input[type="date"],
+  select {
+    width: 100%;
+    padding: 18px 24px;
+    border: 2px solid var(--slate-100);
+    border-radius: 18px;
+    background: var(--slate-50);
+    font-size: 1.05rem;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    color: var(--navy);
+  }
+
+  input:focus,
+  select:focus {
+    outline: none;
+    border-color: var(--primary);
+    background: white;
+    box-shadow: 0 0 0 5px rgba(79, 70, 229, 0.1);
+  }
+
+  /* Specialized Checkbox UI */
+  .checkbox-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 20px;
+    margin-top: 10px;
+  }
+
+  .checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 20px;
+    background: var(--slate-50);
+    border-radius: 18px;
+    cursor: pointer;
+    transition: 0.2s;
+    border: 1px solid transparent;
+  }
+
+  .checkbox-label:hover {
+    background: white;
+    border-color: var(--primary-dark);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  }
+
+  .checkbox-label input {
+    width: 22px;
+    height: 22px;
+    accent-color: var(--primary);
+  }
+
+  .checkbox-label span {
+    font-weight: 600;
+    font-size: 0.95rem;
+  }
+
+  /* Floating Submit Action */
+  .action-bar {
+    position: sticky;
+    bottom: 30px;
+    margin-top: 100px; /* Big gap before final action */
+    z-index: 100;
+    padding: 0 20px;
+  }
+
+  .submit-btn {
+    width: 100%;
+    max-width: 600px;
+    margin: 0 auto;
+    background: var(--navy);
+    color: white;
+    border: none;
+    padding: 24px 40px;
+    border-radius: 24px;
+    font-weight: 800;
+    font-size: 1.2rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    box-shadow: var(--shadow-xl);
+  }
+
+  .submit-btn:hover {
+    background: var(--primary);
+    transform: translateY(-4px) scale(1.02);
+    box-shadow: 0 20px 30px -10px rgba(79, 70, 229, 0.4);
+  }
+
+  /* Offline Indicator */
+  .pwa-hint {
+    text-align: center;
+    margin-top: 24px;
+    color: var(--slate-400);
+    font-size: 0.85rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+
+  /* Responsive Adjustments */
+  @media (max-width: 900px) {
+    .grid-layout {
+      grid-template-columns: 1fr;
+      gap: 30px;
+    }
+    .full-width {
+      grid-column: span 1;
+    }
+    .form-card {
+      padding: 40px 24px;
+    }
+    .form-container {
+      padding: 60px 16px;
+    }
+  }
+</style>
+
+<div class="form-container">
+  <header class="form-header reveal">
+    <div class="status-tag">
+      <span style="color: #10b981">●</span> Secure Clinical Session
+    </div>
+    <h1>Patient Intake <span style="color: var(--primary)">&</span> Metrics</h1>
+    <p
+      style="
+        color: var(--slate-600);
+        font-size: 1.2rem;
+        max-width: 700px;
+        margin: 0 auto;
+      ">
+      Complete the clinical profile to enhance AI diagnostic accuracy and
+      patient record integrity.
+    </p>
+  </header>
+
+  <form method="POST" id="intakeForm">
+    <!-- Block 1: Identification -->
+    <section class="form-card reveal">
+      <h2>
+        <div class="section-icon">🆔</div>
+        Personal Information
+      </h2>
+      <div class="grid-layout">
+        <div class="field full-width">
+          <label for="patient_name">Full Legal Name</label>
+          <input
+            type="text"
+            id="patient_name"
+            name="patient_name"
+            placeholder="As per hospital records"
+            required />
+        </div>
+        <div class="field">
+          <label for="age">Current Age</label>
+          <input type="number" id="age" name="age" min="0" max="120" required />
+        </div>
+        <div class="field">
+          <label for="gender">Sex at Birth</label>
+          <select id="gender" name="gender" required>
+            <option value="">Select Gender</option>
+            <option value="Male">Male</option>
+            <option value="Female">Female</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+      </div>
+    </section>
+
+    <!-- Block 2: Physical Vitals -->
+    <section class="form-card reveal">
+      <h2>
+        <div class="section-icon">📉</div>
+        Clinical Vitals
+      </h2>
+      <div class="grid-layout">
+        <div class="field">
+          <label for="weight">Weight (kg)</label>
+          <input type="number" id="weight" name="weight" step="0.1" />
+        </div>
+        <div class="field">
+          <label for="body_temp">Body Temp (°F)</label>
+          <input
+            type="number"
+            id="body_temp"
+            name="body_temperature"
+            step="0.1"
+            placeholder="e.g. 98.6" />
+        </div>
+        <div class="field">
+          <label for="bp">Blood Pressure</label>
+          <input
+            type="text"
+            id="bp"
+            name="blood_pressure"
+            placeholder="120/80" />
+        </div>
+        <div class="field">
+          <label for="height">Height (cm)</label>
+          <input type="number" id="height" name="height" />
+        </div>
+        <div class="field full-width">
+          <label for="allergies">Known Allergies / Contraindications</label>
+          <input
+            type="text"
+            id="allergies"
+            name="allergies"
+            placeholder="e.g. None known" />
+        </div>
+      </div>
+    </section>
+
+    <!-- Block 3: Symptom Tracker -->
+    <section class="form-card reveal">
+      <h2>
+        <div class="section-icon">⚡</div>
+        Symptomatic Profile
+      </h2>
+      <p
+        style="
+          color: var(--slate-400);
+          font-size: 0.9rem;
+          margin-top: -30px;
+          margin-bottom: 30px;
+        ">
+        Select all symptoms currently present.
+      </p>
+      <div class="checkbox-grid">
+        <label class="checkbox-label">
+          <input type="checkbox" name="symptoms_fever" />
+          <span>Fever / Chills</span>
+        </label>
+        <label class="checkbox-label">
+          <input type="checkbox" name="symptoms_cough" />
+          <span>Productive Cough</span>
+        </label>
+        <label class="checkbox-label">
+          <input type="checkbox" name="symptoms_shortness_of_breath" />
+          <span>Dyspnea</span>
+        </label>
+        <label class="checkbox-label">
+          <input type="checkbox" name="symptoms_chest_pain" />
+          <span>Chest Pain</span>
+        </label>
+        <label class="checkbox-label">
+          <input type="checkbox" name="symptoms_fatigue" /> <span>Fatigue</span>
+        </label>
+      </div>
+      <div class="field full-width" style="margin-top: 40px">
+        <label for="symptom_start">Symptom Onset Date</label>
+        <input type="date" id="symptom_start" name="symptom_start" />
+      </div>
+    </section>
+
+    <!-- Block 4: Historical Risks -->
+    <section class="form-card reveal">
+      <h2>
+        <div class="section-icon">🗂️</div>
+        Risk & Comorbidities
+      </h2>
+      <div class="checkbox-grid">
+        <label class="checkbox-label">
+          <input type="checkbox" name="risk_diabetes" /> <span>Diabetes</span>
+        </label>
+        <label class="checkbox-label">
+          <input type="checkbox" name="risk_chronic_heart_disease" />
+          <span>Heart Disease</span>
+        </label>
+        <label class="checkbox-label">
+          <input type="checkbox" name="risk_chronic_lung_disease" />
+          <span>COPD / Asthma</span>
+        </label>
+        <label class="checkbox-label">
+          <input type="checkbox" name="risk_chronic_liver_disease" />
+          <span>Liver Disease</span>
+        </label>
+      </div>
+    </section>
+
+    <!-- Final Actions -->
+    <div class="action-bar reveal">
+      <button type="submit" class="submit-btn">
+        <span>Proceed to X-Ray Scan</span>
+        <span style="font-size: 1.5rem">→</span>
+      </button>
+      <div class="pwa-hint">
+        <span>🔒</span> AES-256 Encrypted • PWA Offline Storage Active
+      </div>
+    </div>
+  </form>
+</div>
+
+<script>
+  // Animation on scroll
+  const observer = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add("active");
+        }
+      });
+    },
+    { threshold: 0.05 },
+  );
+
+  document.querySelectorAll(".reveal").forEach((el) => observer.observe(el));
+
+  // PWA/Offline Drafting Logic
+  const form = document.getElementById("intakeForm");
+  form.addEventListener("input", () => {
+    const formData = new FormData(form);
+    const data = Object.fromEntries(formData.entries());
+    localStorage.setItem("pneumo_draft", JSON.stringify(data));
+  });
+
+  window.addEventListener("load", () => {
+    const draft = localStorage.getItem("pneumo_draft");
+    if (draft) {
+      const data = JSON.parse(draft);
+      Object.keys(data).forEach((key) => {
+        const field = form.elements[key];
+        if (field) {
+          if (field.type === "checkbox") field.checked = true;
+          else field.value = data[key];
+        }
+      });
+    }
+  });
+</script>
+{% endblock %}
