@@ -411,10 +411,24 @@ If system breaks:
 
 # 17. License
 
-❌ No license specified
-(Add MIT / Apache 2.0 if needed)
+This project is licensed under the MIT License.
 
+You are free to:
+
+Use
+Modify
+Distribute
+Use commercially
+
+See LICENSE file for details.
 ---
+📩 17. Contact Me
+
+If you need model files, collaboration, or support:
+
+📧 Email: your-gaikwadpoorva7@gmail.com
+🔗 GitHub: https://github.com/poorva-gaikwad
+💬 Open an issue in this repository
 
 # Final Note
 
