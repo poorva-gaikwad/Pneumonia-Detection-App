@@ -422,7 +422,7 @@ Use commercially
 
 See LICENSE file for details.
 ---
-📩 17. Contact Me
+📩 Contact Me
 
 If you need model files, collaboration, or support:
 
@@ -430,14 +430,4 @@ If you need model files, collaboration, or support:
 🔗 GitHub: https://github.com/poorva-gaikwad
 💬 Open an issue in this repository
 
-# Final Note
 
-This repository is a **functional ML healthcare prototype**, not a fully hardened production system.
-
-If you revisit this after years:
-
-- Start with `app1.py`
-- Verify models
-- Rebuild environment exactly
-
-**This README is your system memory.**
